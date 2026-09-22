@@ -75,7 +75,6 @@ These scams often combine multiple psychological and technical techniques.
 
 A typical fraudulent recruitment flow may look like:
 
-```text
 Trust Building
       |
       v
