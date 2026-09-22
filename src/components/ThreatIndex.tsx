@@ -1,6 +1,6 @@
 import React from 'react';
-import { ShieldAlert, ShieldCheck, AlertTriangle, Info, CheckCircle2, Zap } from 'lucide-react';
 import { ThreatIndexResult } from '../types/analysis';
+import { Badge } from './ui/Badge';
 
 interface ThreatIndexProps {
   threatIndex: ThreatIndexResult;
@@ -16,95 +16,75 @@ export const ThreatIndex: React.FC<ThreatIndexProps> = ({
   summary,
   claimedCompany,
   claimedRole,
-  location,
-  salary,
 }) => {
   const { score, band, confidence, evidenceQuality, factorContributions } = threatIndex;
 
-  // Determine color scheme based on band
-  const getTheme = () => {
+  // Determine threat classification, label, and colors
+  const getRiskDetails = () => {
     switch (band) {
       case 'CRITICAL':
         return {
-          textColor: 'text-rose-400',
-          borderColor: 'border-rose-500/40',
-          bgColor: 'bg-rose-950/20',
-          badgeBg: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+          label: 'CRITICAL RISK',
+          title: 'High-Confidence Employment Scam',
           ringStroke: '#f43f5e',
-          accent: 'from-rose-500 to-red-600',
+          textColor: 'text-rose-400',
+          badgeVariant: 'danger' as const,
+          panelBorder: 'border-rose-500/30',
         };
       case 'HIGH':
         return {
-          textColor: 'text-amber-400',
-          borderColor: 'border-amber-500/40',
-          bgColor: 'bg-amber-950/20',
-          badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-          ringStroke: '#f59e0b',
-          accent: 'from-amber-500 to-orange-600',
+          label: 'HIGH RISK',
+          title: 'Potential Employment Scam',
+          ringStroke: '#f97316',
+          textColor: 'text-orange-400',
+          badgeVariant: 'warning' as const,
+          panelBorder: 'border-orange-500/30',
         };
       case 'MODERATE':
         return {
-          textColor: 'text-yellow-400',
-          borderColor: 'border-yellow-500/40',
-          bgColor: 'bg-yellow-950/20',
-          badgeBg: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
+          label: 'MODERATE RISK',
+          title: 'Suspicious Recruitment Communication',
           ringStroke: '#eab308',
-          accent: 'from-yellow-500 to-amber-600',
+          textColor: 'text-amber-400',
+          badgeVariant: 'warning' as const,
+          panelBorder: 'border-amber-500/30',
         };
       case 'LOW':
       default:
         return {
-          textColor: 'text-emerald-400',
-          borderColor: 'border-emerald-500/40',
-          bgColor: 'bg-emerald-950/20',
-          badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+          label: 'LOW DETECTED RISK',
+          title: 'No Major Scam Indicators Detected',
           ringStroke: '#10b981',
-          accent: 'from-emerald-500 to-teal-600',
+          textColor: 'text-emerald-400',
+          badgeVariant: 'success' as const,
+          panelBorder: 'border-emerald-500/30',
         };
     }
   };
 
-  const theme = getTheme();
+  const risk = getRiskDetails();
 
   // SVG Circular Gauge calculation
-  const radius = 70;
+  const radius = 64;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
+  const displayExplanation =
+    band === 'LOW'
+      ? 'No major scam indicators were detected from the available evidence. This does not prove legitimacy.'
+      : summary ||
+        'Multiple risk indicators were detected, including potential payment requests, urgency manipulation, or sensitive data collection.';
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 mb-8">
-      <div className={`cyber-card rounded-2xl border ${theme.borderColor} p-6 sm:p-8 shadow-2xl relative overflow-hidden`}>
-        {/* Top badge */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono tracking-wider uppercase text-slate-400">
-              Deterministic Threat Engine Output
-            </span>
-            <span className="text-slate-600">•</span>
-            <span className="text-xs font-mono text-cyan-400 flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5" />
-              Formula-driven (No LLM score hallucination)
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="text-xs font-mono px-3 py-1 rounded-full border border-slate-700 bg-slate-900 text-slate-300">
-              Confidence: <strong className="text-white">{confidence}%</strong>
-            </div>
-            <div className="text-xs font-mono px-3 py-1 rounded-full border border-slate-700 bg-slate-900 text-slate-300">
-              Evidence Quality:{' '}
-              <strong className={evidenceQuality === 'HIGH' ? 'text-emerald-400' : 'text-amber-400'}>
-                {evidenceQuality}
-              </strong>
-            </div>
-          </div>
-        </div>
-
-        {/* Core Score Display: Dominant Circular Ring + Metric Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-          {/* Left: Circular Ring (4 cols) */}
+      {/* ONE large clean summary panel */}
+      <div
+        className={`bg-slate-900/70 border ${risk.panelBorder} rounded-2xl p-6 sm:p-8 shadow-xl`}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
+          {/* LEFT: Circular Threat Index */}
           <div className="md:col-span-4 flex flex-col items-center justify-center text-center">
-            <div className="relative w-44 h-44 flex items-center justify-center">
+            <div className="relative w-40 h-40 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 160 160">
                 {/* Background Ring */}
                 <circle
@@ -112,7 +92,7 @@ export const ThreatIndex: React.FC<ThreatIndexProps> = ({
                   cy="80"
                   r={radius}
                   stroke="currentColor"
-                  strokeWidth="12"
+                  strokeWidth="10"
                   fill="transparent"
                   className="text-slate-800"
                 />
@@ -121,8 +101,8 @@ export const ThreatIndex: React.FC<ThreatIndexProps> = ({
                   cx="80"
                   cy="80"
                   r={radius}
-                  stroke={theme.ringStroke}
-                  strokeWidth="12"
+                  stroke={risk.ringStroke}
+                  strokeWidth="10"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
@@ -132,69 +112,74 @@ export const ThreatIndex: React.FC<ThreatIndexProps> = ({
               </svg>
 
               <div className="absolute flex flex-col items-center justify-center">
-                <span className={`text-5xl font-black font-display tracking-tighter ${theme.textColor}`}>
+                <span className={`text-5xl font-extrabold tracking-tight ${risk.textColor}`}>
                   {score}
                 </span>
-                <span className="text-xs font-mono text-slate-400 font-semibold tracking-widest">
+                <span className="text-xs font-mono text-slate-400 font-medium">
                   / 100
                 </span>
               </div>
             </div>
 
-            <div className={`mt-3 px-4 py-1.5 rounded-full border text-xs font-bold font-mono tracking-wider uppercase ${theme.badgeBg}`}>
-              {band} RISK
+            <div className="mt-3">
+              <Badge variant={risk.badgeVariant} size="md">
+                {risk.label}
+              </Badge>
             </div>
           </div>
 
-          {/* Right: Detected Entities + One-Line Assessment (8 cols) */}
+          {/* RIGHT: Threat Classification, Explanation & Metrics */}
           <div className="md:col-span-8 flex flex-col justify-center space-y-4">
-            {/* Section 2: ONE-LINE ASSESSMENT */}
             <div>
-              <h2 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">
-                Investigation Assessment
-              </h2>
-              <p className="text-lg sm:text-xl font-medium text-slate-100 leading-snug">
-                {summary || 'Analysis complete: risk indicators derived from explicit evidence.'}
+              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400 block mb-1">
+                THREAT INDEX
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                {risk.title}
+              </h3>
+              <p className="text-sm text-slate-300 mt-2 leading-relaxed">
+                {displayExplanation}
               </p>
             </div>
 
-            {/* Claimed Metadata Chips */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800">
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] font-mono text-slate-400 uppercase">Company Claim</span>
-                <span className="text-xs font-semibold text-white truncate block">
-                  {claimedCompany || 'Unspecified'}
+            {/* Entity metadata if present */}
+            {(claimedCompany || claimedRole) && (
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-400">
+                {claimedCompany && (
+                  <span className="px-2.5 py-1 rounded-md bg-slate-950 border border-slate-800 text-slate-300">
+                    Company: <strong className="text-white">{claimedCompany}</strong>
+                  </span>
+                )}
+                {claimedRole && (
+                  <span className="px-2.5 py-1 rounded-md bg-slate-950 border border-slate-800 text-slate-300">
+                    Role: <strong className="text-white">{claimedRole}</strong>
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Compact Metrics Row */}
+            <div className="pt-4 border-t border-slate-800/80 grid grid-cols-3 gap-3">
+              <div className="px-3 py-2 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                <span className="block text-[11px] text-slate-400">Confidence</span>
+                <span className="text-sm font-semibold text-white mt-0.5 block font-mono">
+                  {confidence}%
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] font-mono text-slate-400 uppercase">Offered Role</span>
-                <span className="text-xs font-semibold text-white truncate block">
-                  {claimedRole || 'Unspecified'}
+              <div className="px-3 py-2 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                <span className="block text-[11px] text-slate-400">Evidence Quality</span>
+                <span className="text-sm font-semibold text-white mt-0.5 block font-mono">
+                  {evidenceQuality}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] font-mono text-slate-400 uppercase">Comp Mentioned</span>
-                <span className="text-xs font-semibold text-cyan-300 truncate block">
-                  {salary || 'Not specified'}
+              <div className="px-3 py-2 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                <span className="block text-[11px] text-slate-400">Risk Factors</span>
+                <span className="text-sm font-semibold text-white mt-0.5 block font-mono">
+                  {factorContributions.length}
                 </span>
               </div>
-
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] font-mono text-slate-400 uppercase">Active Signals</span>
-                <span className="text-xs font-semibold text-amber-300 block">
-                  {factorContributions.length} detected
-                </span>
-              </div>
-            </div>
-
-            {/* Transparency Note */}
-            <div className="flex items-start gap-2 text-xs font-mono text-slate-400 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-              <Info className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-              <span>
-                <strong>Risk Score ≠ Certainty:</strong> This mathematical index measures the concentration of fraud tactics observed in the document. Legitimacy should always be verified independently through official corporate registries.
-              </span>
             </div>
           </div>
         </div>

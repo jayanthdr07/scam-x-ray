@@ -1,73 +1,75 @@
 import React from 'react';
-import { Dna, Info, AlertTriangle, Shield } from 'lucide-react';
+import { Dna } from 'lucide-react';
 import { ScamDnaProfile } from '../types/analysis';
+import { Badge } from './ui/Badge';
 
 interface ScamDnaRadarProps {
   dna: ScamDnaProfile;
 }
 
 export const ScamDnaRadar: React.FC<ScamDnaRadarProps> = ({ dna }) => {
-  const metrics = [
-    { label: 'Financial Pressure', value: dna.financialPressure || 0, color: 'from-rose-500 to-red-600', text: 'text-rose-400' },
-    { label: 'Urgency & Pressure', value: dna.urgency || 0, color: 'from-amber-500 to-orange-600', text: 'text-amber-400' },
-    { label: 'Data Harvesting', value: dna.dataHarvesting || 0, color: 'from-purple-500 to-indigo-600', text: 'text-purple-400' },
-    { label: 'Credential Harvesting', value: dna.credentialHarvesting || 0, color: 'from-red-600 to-rose-700', text: 'text-red-400' },
-    { label: 'Impersonation Signals', value: dna.impersonation || 0, color: 'from-sky-500 to-blue-600', text: 'text-sky-400' },
-    { label: 'Fake Recruitment Anomalies', value: dna.fakeRecruitment || 0, color: 'from-cyan-500 to-teal-600', text: 'text-cyan-400' },
+  const bars = [
+    { label: 'Financial Pressure', value: dna.financialPressure || 0, color: 'bg-rose-500' },
+    { label: 'Urgency', value: dna.urgency || 0, color: 'bg-amber-500' },
+    { label: 'Data Harvesting', value: dna.dataHarvesting || 0, color: 'bg-purple-500' },
+    { label: 'Impersonation', value: dna.impersonation || 0, color: 'bg-sky-500' },
   ];
+
+  // Derive primary pattern from highest vector
+  const getPrimaryPattern = () => {
+    const fin = dna.financialPressure || 0;
+    const urg = dna.urgency || 0;
+    const data = dna.dataHarvesting || 0;
+    const imp = dna.impersonation || 0;
+
+    if (fin >= 30) return 'Advance Fee Fraud';
+    if (data >= 30) return 'Identity & Data Harvesting';
+    if (imp >= 30) return 'Recruiter Impersonation';
+    if (urg >= 30) return 'Coercive Urgency Pressure';
+    if (fin > 0 || urg > 0 || data > 0 || imp > 0) return 'Suspicious Recruitment';
+    return 'Baseline Behavior';
+  };
+
+  const primaryPattern = getPrimaryPattern();
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 mb-8">
-      <div className="cyber-card rounded-2xl border border-cyan-500/25 p-6 sm:p-7 shadow-xl">
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-purple-950/60 border border-purple-500/30 text-purple-400">
-              <Dna className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold font-display uppercase tracking-wider text-white">
-                SCAM DNA PROFILE
-              </h3>
-              <p className="text-xs font-mono text-slate-400">
-                Multi-dimensional forensic intensity mapping
-              </p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800">
+          <div>
+            <h3 className="text-base font-bold text-white tracking-tight">
+              Scam DNA
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Detected behavioral patterns
+            </p>
           </div>
 
-          <span className="text-xs font-mono text-slate-400">
-            6 Vector Metrics
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">Primary Pattern:</span>
+            <Badge variant="warning" size="sm">
+              {primaryPattern}
+            </Badge>
+          </div>
         </div>
 
-        {/* DNA Bars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          {metrics.map((metric) => (
-            <div
-              key={metric.label}
-              className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800"
-            >
-              <div className="flex items-center justify-between mb-1.5 text-xs font-mono">
-                <span className="text-slate-300 font-medium">{metric.label}</span>
-                <span className={`font-bold ${metric.text}`}>{metric.value} / 100</span>
+        {/* Compact Horizontal Bars */}
+        <div className="space-y-3">
+          {bars.map((bar) => (
+            <div key={bar.label}>
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-slate-300 font-medium">{bar.label}</span>
+                <span className="font-mono text-slate-400 font-semibold">{bar.value}%</span>
               </div>
-              {/* Progress track */}
               <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800/80">
                 <div
-                  className={`h-full rounded-full bg-gradient-to-r ${metric.color} transition-all duration-1000`}
-                  style={{ width: `${Math.max(4, metric.value)}%` }}
+                  className={`h-full rounded-full ${bar.color} transition-all duration-700`}
+                  style={{ width: `${Math.min(100, Math.max(2, bar.value))}%` }}
                 />
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Mandatory Forensic Disclaimer */}
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-slate-400">
-          <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-          <span>
-            <strong>Forensic Notice:</strong> Scam DNA represents detected behavioral patterns across standard fraud categories, not a definitive legal or criminal classification.
-          </span>
         </div>
       </div>
     </div>

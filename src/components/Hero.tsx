@@ -1,55 +1,51 @@
 import React from 'react';
-import { Search, ShieldAlert, GitFork, CheckCircle2, Crosshair, Sparkles } from 'lucide-react';
+import { Search, ShieldCheck, GitFork, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   return (
-    <section className="relative pt-8 pb-4 text-center overflow-hidden">
-      {/* Background glow effects */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 text-xs font-mono mb-4 tracking-wide">
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span>CYBERSECURITY EMPLOYMENT FRAUD INVESTIGATION</span>
+    <section id="how-it-works-section" className="pt-10 pb-8 text-center">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        {/* Small label */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-800 bg-slate-900/60 text-cyan-400 text-xs font-mono mb-5 tracking-wide">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <span>AI-POWERED JOB OFFER INVESTIGATION</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-display text-white mb-3">
+        {/* Main heading */}
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-4 leading-[1.15]">
           Don't just detect the scam.{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500">
-            Trace it.
-          </span>
+          <span className="text-cyan-400">Trace it.</span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-6">
-          Investigate suspicious job offers, recruiter messages, URLs, PDFs, and screenshots before you pay, click, or disclose sensitive national identity data.
+        {/* Supporting text */}
+        <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto mb-7 leading-relaxed">
+          Investigate suspicious job offers, recruiter messages, URLs, PDFs and screenshots before you pay, click, or share sensitive information.
         </p>
 
-        {/* 6-Stage Forensic Methodology Pill Chain */}
-        <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-slate-400">
-          <span className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-cyan-300 font-semibold">
-            1. DETECT
-          </span>
-          <span className="text-slate-600">→</span>
-          <span className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-sky-300 font-semibold">
-            2. VERIFY
-          </span>
-          <span className="text-slate-600">→</span>
-          <span className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-amber-300 font-semibold">
-            3. TRACE
-          </span>
-          <span className="text-slate-600">→</span>
-          <span className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-purple-300 font-semibold">
-            4. EXPLAIN
-          </span>
-          <span className="text-slate-600">→</span>
-          <span className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-rose-300 font-semibold">
-            5. CHALLENGE
-          </span>
-          <span className="text-slate-600">→</span>
-          <span className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-emerald-300 font-semibold">
-            6. PROTECT
-          </span>
+        {/* Simple 4-step compact horizontal progression */}
+        <div className="inline-flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-3.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900/40 text-xs font-mono text-slate-300">
+          <div className="flex items-center gap-1.5 py-1 px-2">
+            <Search className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="font-semibold text-slate-200">DETECT</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+
+          <div className="flex items-center gap-1.5 py-1 px-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+            <span className="font-semibold text-slate-200">VERIFY</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+
+          <div className="flex items-center gap-1.5 py-1 px-2">
+            <GitFork className="w-3.5 h-3.5 text-purple-400" />
+            <span className="font-semibold text-slate-200">TRACE</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+
+          <div className="flex items-center gap-1.5 py-1 px-2">
+            <ShieldAlert className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="font-semibold text-slate-200">PROTECT</span>
+          </div>
         </div>
       </div>
     </section>
