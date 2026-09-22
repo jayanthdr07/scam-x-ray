@@ -1,0 +1,492 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Header } from './components/Header';
+import { Hero } from './components/Hero';
+import { Scanner } from './components/Scanner';
+import { ScamPatternLibrary } from './components/ScamPatternLibrary';
+import { SmartAlert, InterceptedAction } from './components/SmartAlert';
+import { ThreatIndex } from './components/ThreatIndex';
+import { TopRedFlags } from './components/TopRedFlags';
+import { EvidenceLens } from './components/EvidenceLens';
+import { AttackChain } from './components/AttackChain';
+import { RiskHeatmap } from './components/RiskHeatmap';
+import { ScamDnaRadar } from './components/ScamDnaRadar';
+import { VerificationPanel } from './components/VerificationPanel';
+import { RedTeamPanel } from './components/RedTeamPanel';
+import { RiskSimulator } from './components/RiskSimulator';
+import { ProtectionPlan } from './components/ProtectionPlan';
+import { EmailHeaderModal } from './components/EmailHeaderModal';
+import { Footer } from './components/Footer';
+import { InvestigationSession, VerificationResult, RedTeamReview } from './types/analysis';
+import { AlertCircle, RotateCcw, Download, Share2, Check, Flame, Layers, ShieldCheck } from 'lucide-react';
+
+export default function App() {
+  const [session, setSession] = useState<InvestigationSession | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isRedTeaming, setIsRedTeaming] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reportExported, setReportExported] = useState(false);
+  const [activeDashboardTab, setActiveDashboardTab] = useState<'overview' | 'heatmap'>('overview');
+  const [externalInputText, setExternalInputText] = useState<string | undefined>(undefined);
+  const [interceptedAction, setInterceptedAction] = useState<InterceptedAction | null>(null);
+
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Real-time Smart Alert Interception for links/actions
+  const triggerSmartAlert = (url: string, reason?: string, severity: 'critical' | 'high' = 'high') => {
+    setInterceptedAction({
+      id: 'alert-' + Date.now(),
+      url,
+      reason: reason || 'Destination flagged by SCAMTRACE AI engine for suspicious recruitment evasion or unverified credential request.',
+      category: url.includes('t.me') || url.includes('telegram') ? 'off_platform' :
+                url.includes('upi') || url.includes('wire') || url.includes('fee') ? 'financial' : 'domain',
+      severity,
+      timestamp: Date.now(),
+    });
+  };
+
+  // Intercept any high-risk links clicked across the page
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+      const lowerHref = href.toLowerCase();
+      const isDangerous =
+        lowerHref.includes('t.me') ||
+        lowerHref.includes('telegram') ||
+        lowerHref.includes('fakeupi') ||
+        lowerHref.includes('bit.ly') ||
+        lowerHref.includes('tinyurl') ||
+        lowerHref.includes('verify-candidate') ||
+        lowerHref.includes('accredited-training') ||
+        lowerHref.includes('screening') ||
+        (session && session.threatIndex.score >= 55 && !lowerHref.includes('google.com/search') && !lowerHref.includes('linkedin.com/company'));
+
+      if (isDangerous) {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerSmartAlert(
+          href,
+          `High-risk external link intercepted: "${href}". This URL matches deceptive recruitment patterns or off-platform communication evasion.`,
+          session && session.threatIndex.score >= 70 ? 'critical' : 'high'
+        );
+      }
+    };
+
+    document.addEventListener('click', handleGlobalClick, true);
+    return () => document.removeEventListener('click', handleGlobalClick, true);
+  }, [session]);
+
+  // Main Investigation Handler
+  const handleInvestigate = async (params: {
+    inputMode: 'text' | 'url' | 'pdf' | 'image';
+    text?: string;
+    url?: string;
+    fileBase64?: string;
+    mimeType?: string;
+    fileName?: string;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    setLoadingStep('🔍 Reading offer input...');
+
+    // Dynamic step sequence for user feedback
+    const stepTimer1 = setTimeout(() => setLoadingStep('🧠 Extracting risk signals & entities...'), 1200);
+    const stepTimer2 = setTimeout(() => setLoadingStep('🧾 Mapping verifiable evidence quotes...'), 2600);
+    const stepTimer3 = setTimeout(() => setLoadingStep('🧬 Computing Scam DNA & attack chain...'), 4200);
+    const stepTimer4 = setTimeout(() => setLoadingStep('⚡ Calculating deterministic Threat Index...'), 5800);
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Investigation service failed to analyze input.');
+      }
+
+      const data = await response.json();
+      setSession(data);
+
+      // Auto-scroll down smoothly to results
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 200);
+
+      // If a company claim was detected, auto-trigger Google Search Verification in background
+      if (data.analysis?.claimedCompany && data.analysis.claimedCompany !== 'Unknown') {
+        runVerificationInBackground(data.analysis.claimedCompany, data.analysis.claimedRole);
+      }
+    } catch (err: any) {
+      console.error('Investigation error:', err);
+      setError(err.message || 'An error occurred during analysis.');
+    } finally {
+      clearTimeout(stepTimer1);
+      clearTimeout(stepTimer2);
+      clearTimeout(stepTimer3);
+      clearTimeout(stepTimer4);
+      setIsLoading(false);
+      setLoadingStep('');
+    }
+  };
+
+  // Google Search Verification Handler
+  const handleRunVerification = async (company: string) => {
+    if (!company) return;
+    setIsVerifying(true);
+    try {
+      const response = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company,
+          role: session?.analysis.claimedRole || undefined,
+          claims: session?.analysis.claimsForVerification?.map((c: any) => c.claimText) || [],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Verification service could not complete search.');
+      }
+
+      const data = await response.json();
+      setSession((prev: InvestigationSession | null) => (prev ? { ...prev, verification: data.verification } : null));
+    } catch (err: any) {
+      console.error('Verification error:', err);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const runVerificationInBackground = async (company: string, role?: string | null) => {
+    setIsVerifying(true);
+    try {
+      const response = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company, role: role || undefined }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSession((prev: InvestigationSession | null) => (prev ? { ...prev, verification: data.verification } : null));
+      }
+    } catch (e) {
+      console.warn('Background verification skipped:', e);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  // Adversarial Red Team Review Handler
+  const handleRunRedTeam = async () => {
+    if (!session) return;
+    setIsRedTeaming(true);
+    try {
+      const response = await fetch('/api/red-team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originalOffer: session.originalInput,
+          initialAnalysis: session.analysis,
+          initialScore: session.threatIndex.score,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Adversarial red team review failed.');
+      }
+
+      const data = await response.json();
+      setSession((prev: InvestigationSession | null) => (prev ? { ...prev, redTeam: data.redTeam } : null));
+    } catch (err: any) {
+      console.error('Red team error:', err);
+    } finally {
+      setIsRedTeaming(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSession(null);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleExportReport = () => {
+    if (!session) return;
+    const reportText = `SCAMTRACE FORENSIC INVESTIGATION REPORT
+Generated: ${new Date(session.timestamp).toLocaleString()}
+Investigation ID: ${session.id}
+Input Type: ${session.inputMode}
+
+THREAT ASSESSMENT:
+- Threat Index: ${session.threatIndex.score} / 100 (${session.threatIndex.band} RISK)
+- Confidence: ${session.threatIndex.confidence}%
+- Evidence Quality: ${session.threatIndex.evidenceQuality}
+- Claimed Employer: ${session.analysis.claimedCompany || 'Unspecified'}
+- Claimed Position: ${session.analysis.claimedRole || 'Unspecified'}
+
+KEY FINDINGS:
+${session.threatIndex.factorContributions.map((f: any) => `* [${f.weight} pts] ${f.title}: "${f.evidence}"`).join('\n')}
+
+ATTACK CHAIN PROGRESSION:
+${session.analysis.attackChain.map((s: any, i: number) => `${i + 1}. [${s.stage.toUpperCase()}] ${s.title}: ${s.explanation}`).join('\n')}
+
+INVESTIGATION SUMMARY:
+${session.analysis.summary}
+
+VERIFICATION STATUS:
+${session.verification ? `${session.verification.status}: ${session.verification.verificationSummary}` : 'Not verified yet'}
+
+--------------------------------------------------
+Advisory Report by SCAMTRACE (https://ai.studio/build)`;
+
+    navigator.clipboard.writeText(reportText);
+    setReportExported(true);
+    setTimeout(() => setReportExported(false), 2500);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+      {/* Top Header */}
+      <Header
+        onOpenEmailAnalyzer={() => setEmailModalOpen(true)}
+        onNavigateToLibrary={() => document.getElementById('scam-pattern-library-section')?.scrollIntoView({ behavior: 'smooth' })}
+        onNavigateToScanner={() => document.getElementById('offer-scanner-section')?.scrollIntoView({ behavior: 'smooth' })}
+      />
+
+      {/* Main Content */}
+      <main className="flex-1">
+        {/* Hero Section */}
+        <Hero />
+
+        {/* Input Scanner Form */}
+        <Scanner
+          onInvestigate={handleInvestigate}
+          isLoading={isLoading}
+          loadingStep={loadingStep}
+          externalInputText={externalInputText}
+          onExternalInputConsumed={() => setExternalInputText(undefined)}
+        />
+
+        {/* Error Notification */}
+        {error && (
+          <div className="w-full max-w-4xl mx-auto px-4 mb-6">
+            <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/50 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="text-sm font-bold text-rose-300">Investigation Failed</h4>
+                <p className="text-xs text-rose-200 mt-0.5 font-mono">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SCAM PATTERN LIBRARY: Educational Archetypes Directory */}
+        <ScamPatternLibrary
+          onLoadIntoScanner={(sampleText) => setExternalInputText(sampleText)}
+          onInterceptAction={(url, reason, severity) => triggerSmartAlert(url, reason, severity)}
+        />
+
+        {/* Dynamic Investigation Results Section */}
+        {session && (
+          <div ref={resultsRef} className="pt-6 animate-in fade-in duration-500">
+            {/* Action Bar: New Scan + View Switcher + Export Report */}
+            <div className="max-w-4xl mx-auto px-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+              <button
+                id="btn-new-investigation"
+                type="button"
+                onClick={handleReset}
+                className="flex items-center gap-1.5 text-xs font-mono text-slate-400 hover:text-cyan-300 px-3 py-1.5 rounded-lg border border-slate-800 hover:border-cyan-500/40 bg-slate-900/60 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Investigate Another Offer</span>
+              </button>
+
+              {/* Central View Switcher Tabs */}
+              <div className="flex items-center p-1 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono shadow-inner">
+                <button
+                  id="tab-comprehensive-dossier"
+                  type="button"
+                  onClick={() => setActiveDashboardTab('overview')}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all ${
+                    activeDashboardTab === 'overview'
+                      ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Comprehensive Dossier</span>
+                </button>
+
+                <button
+                  id="tab-risk-heatmap"
+                  type="button"
+                  onClick={() => setActiveDashboardTab('heatmap')}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all ${
+                    activeDashboardTab === 'heatmap'
+                      ? 'bg-rose-500 text-slate-950 font-bold shadow-sm'
+                      : 'text-slate-400 hover:text-rose-300'
+                  }`}
+                >
+                  <Flame className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Risk Heatmap View</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-500/40 font-bold hidden sm:inline">
+                    NEW
+                  </span>
+                </button>
+              </div>
+
+              <button
+                id="btn-export-report"
+                type="button"
+                onClick={handleExportReport}
+                className="flex items-center gap-1.5 text-xs font-mono text-cyan-300 hover:text-cyan-200 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-950/40 hover:bg-cyan-950/70 transition-colors shadow-sm"
+              >
+                {reportExported ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Report Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Export Forensic Report</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* View Mode 1: FOCUSED RISK HEATMAP DASHBOARD VIEW */}
+            {activeDashboardTab === 'heatmap' ? (
+              <div className="animate-in fade-in duration-300">
+                {/* Compact Threat Index Banner for context */}
+                <div className="w-full max-w-4xl mx-auto px-4 mb-6">
+                  <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-slate-400">Target Claim:</span>
+                      <strong className="text-white text-sm">
+                        {session.analysis.claimedCompany || 'Unspecified Company'} — {session.analysis.claimedRole || 'Position'}
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="text-slate-400">Threat Index:</span>
+                      <span className={`text-base font-bold ${
+                        session.threatIndex.score >= 65 ? 'text-rose-400' :
+                        session.threatIndex.score >= 35 ? 'text-amber-400' : 'text-emerald-400'
+                      }`}>
+                        {session.threatIndex.score}/100 ({session.threatIndex.band})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Primary Risk Heatmap Component */}
+                <RiskHeatmap
+                  originalText={session.originalInput}
+                  signals={session.analysis.riskSignals}
+                  claimedCompany={session.analysis.claimedCompany}
+                  claimedRole={session.analysis.claimedRole}
+                />
+
+                {/* Cross-Referenced Attack Chain with Timeline */}
+                <AttackChain steps={session.analysis.attackChain} />
+
+                {/* Tactical Protection Plan */}
+                <ProtectionPlan claimedCompany={session.analysis.claimedCompany} />
+              </div>
+            ) : (
+              /* View Mode 2: COMPREHENSIVE FORENSIC INVESTIGATION DOSSIER */
+              <div className="animate-in fade-in duration-300">
+                {/* 1. THREAT INDEX & 2. ONE-LINE ASSESSMENT */}
+                <ThreatIndex
+                  threatIndex={session.threatIndex}
+                  summary={session.analysis.summary}
+                  claimedCompany={session.analysis.claimedCompany}
+                  claimedRole={session.analysis.claimedRole}
+                  location={session.analysis.location}
+                  salary={session.analysis.salary}
+                />
+
+                {/* 3. TOP 3 RED FLAGS */}
+                <TopRedFlags signals={session.analysis.riskSignals} />
+
+                {/* 4. EVIDENCE LENS */}
+                <EvidenceLens
+                  signals={session.analysis.riskSignals}
+                  originalText={session.originalInput}
+                />
+
+                {/* 5. RISK HEATMAP (Visual Density of Suspicious Signals Across Content Input) */}
+                <RiskHeatmap
+                  originalText={session.originalInput}
+                  signals={session.analysis.riskSignals}
+                  claimedCompany={session.analysis.claimedCompany}
+                  claimedRole={session.analysis.claimedRole}
+                />
+
+                {/* 6. SCAM ATTACK CHAIN with THREAT PROGRESSION TIMELINE */}
+                <AttackChain steps={session.analysis.attackChain} />
+
+                {/* 7. SCAM DNA */}
+                <ScamDnaRadar dna={session.analysis.scamDna} />
+
+                {/* 8. VERIFICATION (Google Search Grounded) */}
+                <VerificationPanel
+                  claimedCompany={session.analysis.claimedCompany}
+                  claimedRole={session.analysis.claimedRole}
+                  verification={session.verification}
+                  onRunVerification={handleRunVerification}
+                  isVerifying={isVerifying}
+                />
+
+                {/* 9. ADVERSARIAL RED TEAM REVIEW */}
+                <RedTeamPanel
+                  redTeam={session.redTeam}
+                  onRunRedTeam={handleRunRedTeam}
+                  isRunning={isRedTeaming}
+                  initialScore={session.threatIndex.score}
+                />
+
+                {/* 10. RISK SIMULATOR */}
+                <RiskSimulator
+                  analysis={session.analysis}
+                  initialThreatIndex={session.threatIndex}
+                />
+
+                {/* 11. CANDIDATE PROTECTION PLAN */}
+                <ProtectionPlan claimedCompany={session.analysis.claimedCompany} />
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Real-time Smart Alert: Non-intrusive floating defense toast */}
+      <SmartAlert
+        interceptedAction={interceptedAction}
+        onDismiss={() => setInterceptedAction(null)}
+        onProceedAnyway={(url) => {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }}
+      />
+
+      {/* Email Header Spoofing Modal (P2 Feature) */}
+      <EmailHeaderModal
+        isOpen={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+      />
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+}

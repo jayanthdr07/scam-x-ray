@@ -1,0 +1,7 @@
+{
+  "name": "SCAMTRACE",
+  "description": "AI-Powered Job Offer Investigation & Protection. Don't just detect the scam. Trace it.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
