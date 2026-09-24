@@ -1484,8 +1484,11 @@ The goal is not:
 
 The goal is:
 
+```
 Understand → Evidence → Verify → Explain → Challenge → Protect
+```
 
+---
 
 ## Core Value Proposition
 
@@ -1511,15 +1514,15 @@ That is the central value of SCAMTRACE.
 
 Traditional detection:
 
-
+```
 DETECT
-
+```
 
 SCAMTRACE:
 
-
+```
 DETECT → EXPLAIN → TRACE → VERIFY → CHALLENGE → PROTECT
-
+```
 
 The product does not simply attempt to tell users what to think. It gives them structured evidence so they can make better-informed decisions.
 
