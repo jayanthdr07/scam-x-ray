@@ -383,6 +383,24 @@ A detailed investigation might show:
 
 The attack chain turns disconnected red flags into an understandable sequence.
 
+### 6.1. Interactive Scam Timeline
+
+SCAMTRACE enhances the attack chain with an interactive **Scam Timeline** that chronologically plots detected events against realistic social-engineering playbooks:
+
+- **Chronological Milestones**: Maps the offer progression across relative timeframes:
+  - `T+0h`: Initial Outreach & Social Hook
+  - `T+2h`: Accelerated Fake Selection (No interview)
+  - `T+24h`: Manufactured Velocity & Deadline Pressure
+  - `T+48h`: Primary Advance Fee Extraction (Security Deposit / Hardware)
+  - `T+72h`: Premature PII & Identity Exfiltration
+  - `T+5d`: Secondary Demands & Compounding Extortion
+  - `T+14d+`: Communication Cutoff & Darknet Identity Resale
+- **Observed vs. Projected States**: Distinguishes between concrete artifacts extracted from the user's submission and predictive adversarial escalation.
+- **You Are Here Indicator**: Identifies the victim's current exposure milestone along the timeline.
+- **Auto-Simulate Playback**: Step-by-step playback with pause, step, and speed controls (`1x` / `2x`).
+- **Tactical What-If Branching**: Simulates consequences if the victim complies versus intervening with protective countermeasures.
+- **Kill-Chain Break Window**: Clear operational guidance on how to break the attack chain at each specific point before irreversible losses occur.
+
 ### 7. Google-Powered Verification
 
 SCAMTRACE can use Google-supported search and verification capabilities to independently investigate claims made in an offer.

@@ -7,6 +7,7 @@ import { SmartAlert, InterceptedAction } from './components/SmartAlert';
 import { ThreatIndex } from './components/ThreatIndex';
 import { TopRedFlags } from './components/TopRedFlags';
 import { EvidenceLens } from './components/EvidenceLens';
+import { ScamTimeline } from './components/ScamTimeline';
 import { AttackChain } from './components/AttackChain';
 import { ScamDnaRadar } from './components/ScamDnaRadar';
 import { VerificationPanel } from './components/VerificationPanel';
@@ -231,6 +232,14 @@ ${session.threatIndex.factorContributions.map((f: any) => `* [${f.weight} pts] $
 ATTACK CHAIN PROGRESSION:
 ${session.analysis.attackChain.map((s: any, i: number) => `${i + 1}. [${s.stage.toUpperCase()}] ${s.title}: ${s.explanation}`).join('\n')}
 
+CHRONOLOGICAL PROJECTION:
+- T+0h: Initial Contact & Trust Hook
+- T+2h: Accelerated Fake Selection & Interview Bypass
+- T+24h: Urgency Pressure & Deadline Coercion
+- T+48h: Advance Fee Extraction (Security Deposit / Hardware)
+- T+72h: Premature PII & Identity Exfiltration
+- T+5d+: Secondary Extortion & Darknet Resale Trajectory
+
 INVESTIGATION SUMMARY:
 ${session.analysis.summary}
 
@@ -362,7 +371,8 @@ Apex Horizon Logistics`);
               />
             </div>
 
-            {/* 5. HOW IT WORKS: Attack Chain */}
+            {/* 5. HOW IT WORKS: Scam Timeline & Attack Chain */}
+            <ScamTimeline steps={session.analysis.attackChain} rawAnalysis={session.analysis} />
             <AttackChain steps={session.analysis.attackChain} />
 
             {/* 6. PATTERN: Scam DNA */}

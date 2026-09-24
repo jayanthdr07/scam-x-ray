@@ -36,6 +36,24 @@ export interface AttackChainStep {
   explanation: string;
 }
 
+export interface TimelineEvent {
+  id: string;
+  stage: 'trust' | 'urgency' | 'financial' | 'data' | 'credential' | 'isolation' | 'extortion' | 'other';
+  title: string;
+  timeframe: string;
+  relativeHours: number;
+  timeLabel: string;
+  isObserved: boolean;
+  evidence?: string;
+  explanation: string;
+  adversaryTactic: string;
+  psychologicalLever: string;
+  potentialVictimImpact: string;
+  killChainAction: string;
+  consequenceIfIgnored: string;
+  severity: RiskSeverity;
+}
+
 export interface ScamDnaProfile {
   financialPressure: number; // 0-100
   urgency: number;           // 0-100
