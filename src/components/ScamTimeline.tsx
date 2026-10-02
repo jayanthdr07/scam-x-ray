@@ -5,6 +5,8 @@ import {
   Pause,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ShieldAlert,
   ShieldCheck,
   AlertTriangle,
@@ -47,6 +49,11 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
 
   // Scenario toggle: 'comply' vs 'intervene'
   const [scenarioMode, setScenarioMode] = useState<'intervene' | 'comply'>('intervene');
+
+  // Prevention tips state
+  const [isPreventionTipsExpanded, setIsPreventionTipsExpanded] = useState<boolean>(true);
+  const [matrixExpandedTips, setMatrixExpandedTips] = useState<Record<string, boolean>>({});
+  const [copiedTipsStageId, setCopiedTipsStageId] = useState<string | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -123,6 +130,28 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
     navigator.clipboard.writeText(lines.join('\n'));
     setCopiedTimeline(true);
     setTimeout(() => setCopiedTimeline(false), 2000);
+  };
+
+  const handleCopyStageTips = (event: TimelineEvent) => {
+    const text = [
+      `PREVENTION TIPS FOR STAGE: ${event.title} (${event.timeLabel})`,
+      '------------------------------------------------------------',
+      ...(event.preventionTips || []).map((tip, idx) => `${idx + 1}. ${tip}`),
+      '------------------------------------------------------------',
+      `Immediate Kill-Chain Action: ${event.killChainAction}`,
+      'Advisory by SCAMTRACE Forensics Engine',
+    ].join('\n');
+
+    navigator.clipboard.writeText(text);
+    setCopiedTipsStageId(event.id);
+    setTimeout(() => setCopiedTipsStageId(null), 2000);
+  };
+
+  const toggleMatrixStageTips = (stageId: string) => {
+    setMatrixExpandedTips((prev) => ({
+      ...prev,
+      [stageId]: !prev[stageId],
+    }));
   };
 
   if (!events || events.length === 0) {
@@ -414,13 +443,14 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         onClick={() => {
                           setSelectedIndex(idx);
                           setIsPlaying(false);
+                          setIsPreventionTipsExpanded(true);
                         }}
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer relative z-10 ${
                           isSelected
                             ? `bg-slate-950 border-2 ${accent.border} ring-4 ${accent.ring} scale-110 shadow-lg`
                             : 'bg-slate-900 border border-slate-700 hover:border-slate-500 hover:scale-105'
                         }`}
-                        title={`${ev.timeLabel}: ${ev.title}`}
+                        title={`Click to view ${ev.timeLabel} (${ev.title}) prevention tips`}
                       >
                         <span
                           className={`w-2.5 h-2.5 rounded-full ${
@@ -430,22 +460,31 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                       </button>
 
                       {/* Time Marker Label */}
-                      <div className="mt-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedIndex(idx);
+                          setIsPlaying(false);
+                          setIsPreventionTipsExpanded(true);
+                        }}
+                        className="mt-2 text-center cursor-pointer group-hover:opacity-100 focus:outline-none"
+                        title={`Click to view ${ev.timeLabel} prevention tips`}
+                      >
                         <span
                           className={`block text-[11px] font-mono font-bold ${
-                            isSelected ? 'text-cyan-300' : 'text-slate-400'
+                            isSelected ? 'text-cyan-300' : 'text-slate-400 group-hover:text-slate-200'
                           }`}
                         >
                           {ev.timeLabel}
                         </span>
                         <span
                           className={`block text-[10px] max-w-[80px] truncate leading-tight mt-0.5 ${
-                            isSelected ? 'text-slate-200 font-semibold' : 'text-slate-500'
+                            isSelected ? 'text-slate-200 font-semibold' : 'text-slate-500 group-hover:text-slate-400'
                           }`}
                         >
                           {ev.title}
                         </span>
-                      </div>
+                      </button>
 
                       {/* Intervention Cut-off Line Indicator */}
                       {isInterventionLine && (
@@ -493,16 +532,28 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                   </h4>
                 </div>
 
-                {/* Jump to 'You Are Here' if not already on it */}
-                {events[currentEventIndex] && activeEvent.id !== events[currentEventIndex]?.id && (
+                {/* Action buttons: Toggle Prevention Tips & Jump to 'You Are Here' */}
+                <div className="flex items-center gap-2 self-start sm:self-auto">
                   <button
                     type="button"
-                    onClick={handleJumpToCurrent}
-                    className="self-start sm:self-auto text-xs font-mono text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded bg-amber-950/40 border border-amber-800/50 transition-colors"
+                    onClick={() => setIsPreventionTipsExpanded(!isPreventionTipsExpanded)}
+                    className="flex items-center gap-1.5 text-xs font-mono text-emerald-300 hover:text-emerald-200 px-2.5 py-1 rounded bg-emerald-950/60 border border-emerald-700/50 transition-colors shadow-sm"
+                    title="Toggle Prevention Tips for this Phase"
                   >
-                    Jump to Current State →
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{isPreventionTipsExpanded ? 'Hide Prevention Tips' : 'Prevention Tips (4)'}</span>
                   </button>
-                )}
+
+                  {events[currentEventIndex] && activeEvent.id !== events[currentEventIndex]?.id && (
+                    <button
+                      type="button"
+                      onClick={handleJumpToCurrent}
+                      className="text-xs font-mono text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded bg-amber-950/40 border border-amber-800/50 transition-colors"
+                    >
+                      Jump to Current →
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* 4-Quadrant Information Grid */}
@@ -583,6 +634,107 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                     <span>Defuse Risk:</span>
                     <span className="text-emerald-400 font-bold">100% Effective</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Expandable Phase-Specific Prevention Tips */}
+              <div className="mt-4 pt-3 border-t border-slate-800/80">
+                <div className="rounded-xl border border-emerald-900/50 bg-emerald-950/20 overflow-hidden shadow-inner">
+                  <button
+                    type="button"
+                    onClick={() => setIsPreventionTipsExpanded(!isPreventionTipsExpanded)}
+                    className="w-full flex items-center justify-between p-3.5 hover:bg-emerald-950/30 transition-colors text-left"
+                    aria-expanded={isPreventionTipsExpanded}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-900/60 border border-emerald-700/50 flex items-center justify-center text-emerald-400">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-emerald-300">
+                            Prevention Tips: {activeEvent.title}
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-400 px-1.5 py-0.5 rounded bg-emerald-900/50 border border-emerald-700/40">
+                            {activeEvent.preventionTips?.length || 4} Defensive Steps
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-400 block mt-0.5">
+                          {isPreventionTipsExpanded
+                            ? 'Click to collapse prevention guidance'
+                            : 'Click to expand actionable defense steps for this specific phase'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono">
+                      <span className="hidden sm:inline">
+                        {isPreventionTipsExpanded ? 'Collapse' : 'Expand'}
+                      </span>
+                      {isPreventionTipsExpanded ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </div>
+                  </button>
+
+                  {isPreventionTipsExpanded && (
+                    <div className="p-4 pt-1 border-t border-emerald-900/30 space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                        {activeEvent.preventionTips?.map((tip, tipIdx) => {
+                          const [title, ...description] = tip.split(': ');
+                          return (
+                            <div
+                              key={tipIdx}
+                              className="rounded-lg bg-slate-950/90 border border-emerald-900/40 p-3 flex items-start gap-2.5 text-xs text-slate-300"
+                            >
+                              <div className="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-700/60 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400 text-[10px] font-mono font-bold">
+                                {tipIdx + 1}
+                              </div>
+                              <div className="leading-relaxed">
+                                {description.length > 0 ? (
+                                  <>
+                                    <strong className="text-emerald-300 font-semibold block mb-0.5">
+                                      {title}:
+                                    </strong>
+                                    <span className="text-slate-300">{description.join(': ')}</span>
+                                  </>
+                                ) : (
+                                  <span>{tip}</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-emerald-900/30 text-[11px] font-mono text-slate-400">
+                        <span>
+                          Applied timeframe: <strong className="text-white">{activeEvent.timeLabel} ({activeEvent.timeframe})</strong>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyStageTips(activeEvent);
+                          }}
+                          className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors self-start sm:self-auto"
+                        >
+                          {copiedTipsStageId === activeEvent.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-300">Phase Tips Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Phase Defense Tips</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -716,6 +868,73 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                       <span className="text-cyan-300 font-medium truncate max-w-[200px]" title={ev.killChainAction}>
                         {ev.killChainAction}
                       </span>
+                    </div>
+
+                    {/* Expandable Phase Prevention Tips in Matrix View */}
+                    <div className="pt-2 mt-2 border-t border-slate-800/60">
+                      <button
+                        type="button"
+                        onClick={() => toggleMatrixStageTips(ev.id)}
+                        className="w-full flex items-center justify-between text-xs font-mono text-emerald-400 hover:text-emerald-300 py-1 transition-colors group"
+                      >
+                        <span className="flex items-center gap-1.5 font-semibold">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                          <span>
+                            {matrixExpandedTips[ev.id]
+                              ? 'Hide Prevention Tips'
+                              : `View Prevention Tips (${ev.preventionTips?.length || 4})`}
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-1 text-[11px]">
+                          <span className="text-slate-500">
+                            {matrixExpandedTips[ev.id] ? 'Close' : 'Expand'}
+                          </span>
+                          {matrixExpandedTips[ev.id] ? (
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          )}
+                        </div>
+                      </button>
+
+                      {matrixExpandedTips[ev.id] && (
+                        <div className="mt-2 pt-2 border-t border-emerald-900/40 space-y-2 bg-slate-950/80 rounded-lg p-3 border border-emerald-900/30">
+                          <div className="flex items-center justify-between text-[11px] font-mono text-emerald-300 font-bold mb-1">
+                            <span>Defensive Protocol for {ev.timeLabel}:</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyStageTips(ev);
+                              }}
+                              className="text-[10px] text-slate-400 hover:text-emerald-300 flex items-center gap-1"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>Copy</span>
+                            </button>
+                          </div>
+                          {ev.preventionTips?.map((tip, tIdx) => {
+                            const [head, ...body] = tip.split(': ');
+                            return (
+                              <div key={tIdx} className="flex items-start gap-2 text-xs text-slate-300 leading-snug">
+                                <span className="w-4 h-4 rounded-full bg-emerald-950 border border-emerald-800/60 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400 text-[10px] font-mono">
+                                  {tIdx + 1}
+                                </span>
+                                <div>
+                                  {body.length > 0 ? (
+                                    <>
+                                      <strong className="text-emerald-300 font-semibold">{head}: </strong>
+                                      <span>{body.join(': ')}</span>
+                                    </>
+                                  ) : (
+                                    <span>{tip}</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

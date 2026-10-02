@@ -53,6 +53,7 @@ export function buildScamTimeline(
     potentialVictimImpact: string;
     killChainAction: string;
     consequenceIfIgnored: string;
+    preventionTips: string[];
   }> = [
     {
       id: 'timeline-initial-hook',
@@ -71,6 +72,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'Zero financial loss, but victim engages in conversation, signaling an active target.',
       killChainAction: 'Verify recruiter profile and match sending domain against the authentic corporate careers directory.',
       consequenceIfIgnored: 'Target gets drawn deeper into unverified communication channels without audit trails.',
+      preventionTips: [
+        'Verify sender email domain: Authentic corporate recruiters contact you from verified company domains (e.g. @company.com), never free webmail accounts (@gmail.com, @outlook.com).',
+        'Cross-reference official careers directory: Search for the exact job title and requisition ID directly on the company’s authenticated careers portal before replying.',
+        'Beware unsolicited messaging app outreach: Legitimate employers rarely initiate professional hiring communications over Telegram, WhatsApp, or Signal.',
+        'Check recruiter’s LinkedIn presence: Confirm their profile has authentic connection history and is linked to the company’s verified corporate organization page.',
+      ],
     },
     {
       id: 'timeline-rapid-selection',
@@ -87,6 +94,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'Victim begins believing the opportunity is authentic and lowers psychological defenses.',
       killChainAction: 'Request a live video interview with hiring managers using their verifiable @company.com email.',
       consequenceIfIgnored: 'Victim accepts an invalid agreement and prepares to comply with subsequent administrative requests.',
+      preventionTips: [
+        'Demand synchronous video or panel evaluation: Legitimate salaried positions always require face-to-face video or in-person technical interviews.',
+        'Reject text/questionnaire-only interviews: Receiving an immediate job offer based solely on a Google Form or Telegram chat is a primary scam indicator.',
+        'Inspect offer letter formatting: Look for misaligned logos, missing corporate registration numbers (CIN/EIN), and generic template phrasing.',
+        'Assess compensation realism: Drastically inflated compensation for minimal entry-level duties is intended to disable critical skepticism.',
+      ],
     },
     {
       id: 'timeline-urgency-coercion',
@@ -103,6 +116,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'High stress causing emotional compliance and avoidance of basic verification.',
       killChainAction: 'Pause and enforce a mandatory 24-hour verification delay. Legitimate employers never penalize due diligence.',
       consequenceIfIgnored: 'Victim acts impulsively before detecting inconsistencies.',
+      preventionTips: [
+        'Enforce a mandatory 24-hour cooling pause: Take time to verify all documents; urgency is manufactured specifically to prevent due diligence.',
+        'Consult trusted second opinions: Review the offer and communication with a mentor, colleague, or security adviser before signing.',
+        'Never let artificial deadlines bypass verification: Real employers never revoke a legitimate job offer because an applicant verified company credentials.',
+        'Document all correspondence: Take screenshots and export full email headers before responding or acknowledging deadlines.',
+      ],
     },
     {
       id: 'timeline-financial-extraction',
@@ -119,6 +138,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'Direct financial theft (typically $250 to $3,500 / ₹10,000 to ₹150,000) sent via irreversible methods.',
       killChainAction: 'Halt all transactions immediately! Under global labor standards, real employers never charge candidates money.',
       consequenceIfIgnored: 'Funds are permanently laundered via cryptocurrency, UPI, or prepaid cards with no legal recovery path.',
+      preventionTips: [
+        'Absolute zero-fee rule: Legitimate employers provide laptops, software, and training at corporate expense; they never charge applicants.',
+        'Reject check-cashing & vendor schemes: Fraudulent checks sent to buy hardware from "preferred vendors" will bounce, leaving you personally liable.',
+        'Never remit funds via irreversible channels: Demands for Zelle, Venmo, UPI, Wire Transfer, Crypto, or Gift Cards are definitive proof of recruitment fraud.',
+        'Beware "refundable deposit" promises: Promising reimbursement with your first paycheck is the standard advance-fee hook.',
+      ],
     },
     {
       id: 'timeline-data-harvesting',
@@ -135,6 +160,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'Compromised identity used for synthetic identity loans, fraudulent SIM cards, or bank account hijacking.',
       killChainAction: 'Never upload government identification or banking numbers to non-company portals or chat apps.',
       consequenceIfIgnored: 'Perpetual identity theft risks, damaged credit history, and potential criminal impersonation.',
+      preventionTips: [
+        'Withhold sensitive identifiers until contract verification: Government IDs (SSN, Aadhaar, PAN, Passport) should only be submitted via secure, authenticated enterprise portals.',
+        'Watermark identification documents: If document proof is required, watermark copies with "For Verification with [Verified Company] Only" and mask non-essential digits.',
+        'Never disclose OTP or 2FA codes: One-time passwords are strictly for account security and will never be requested by an authentic recruiter.',
+        'Verify payroll collection methods: Formal direct deposit setups only occur through encrypted enterprise HR platforms (Workday, ADP, Gusto), never via messaging apps.',
+      ],
     },
     {
       id: 'timeline-secondary-escalation',
@@ -151,6 +182,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'Secondary compounding financial loss doubling or tripling the initial stolen sum.',
       killChainAction: 'Do not pay ransom or follow-up fees! Cease all communication and preserve message logs as police evidence.',
       consequenceIfIgnored: 'Scammer drains all available liquid savings before discarding the victim.',
+      preventionTips: [
+        'Immediately cease all contact: Do not attempt to negotiate refunds; scammers exploit ongoing engagement to apply additional emotional pressure.',
+        'Ignore fake legal notices and threats: Scammers frequently send fabricated legal summons or threaten police action for "breach of contract"—these are completely fraudulent.',
+        'Preserve unedited evidence: Save all chat logs, transaction numbers, bank receipts, and phone numbers in a secure folder.',
+        'Notify your bank immediately: If money was transferred, alert your bank’s fraud unit right away to request a transaction recall or stop payment.',
+      ],
     },
     {
       id: 'timeline-ghosting-resale',
@@ -167,6 +204,12 @@ export function buildScamTimeline(
       potentialVictimImpact: 'Victim targeted by secondary "fund recovery" scams; stolen identity documents circulated online.',
       killChainAction: 'Place a fraud freeze with credit bureaus, file an official cybercrime complaint, and inform your bank.',
       consequenceIfIgnored: 'Secondary attack vectors launch against the victim using previously gathered intelligence.',
+      preventionTips: [
+        'Place credit freezes with major bureaus: Contact national credit bureaus (Equifax, Experian, TransUnion) to prevent unauthorized loans or new credit accounts.',
+        'File an official cybercrime report: Report the crime to official authorities (e.g. IC3.gov, Cybercrime.gov.in, or local police cyber unit) with your preserved evidence.',
+        'Beware recovery scam follow-ups: Fraudsters often pose as "recovery specialists" or "lawyers" claiming they can retrieve stolen funds for an upfront fee.',
+        'Rotate all passwords & credentials: Change account passwords and enable authenticator-app 2FA on email, financial, and personal accounts.',
+      ],
     },
   ];
 
@@ -197,6 +240,7 @@ export function buildScamTimeline(
       potentialVictimImpact: bp.potentialVictimImpact,
       killChainAction: bp.killChainAction,
       consequenceIfIgnored: bp.consequenceIfIgnored,
+      preventionTips: bp.preventionTips,
     };
   });
 

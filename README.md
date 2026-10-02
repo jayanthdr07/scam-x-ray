@@ -400,6 +400,7 @@ SCAMTRACE enhances the attack chain with an interactive **Scam Timeline** that c
 - **Auto-Simulate Playback**: Step-by-step playback with pause, step, and speed controls (`1x` / `2x`).
 - **Tactical What-If Branching**: Simulates consequences if the victim complies versus intervening with protective countermeasures.
 - **Kill-Chain Break Window**: Clear operational guidance on how to break the attack chain at each specific point before irreversible losses occur.
+- **Phase-Specific Prevention Tips**: Click any stage node or matrix card to expand actionable, concrete defense steps tailored specifically for that exact phase of the attack chain, with one-click export for police or personal records.
 
 ### 7. Google-Powered Verification
 

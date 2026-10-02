@@ -52,6 +52,7 @@ export interface TimelineEvent {
   killChainAction: string;
   consequenceIfIgnored: string;
   severity: RiskSeverity;
+  preventionTips: string[];
 }
 
 export interface ScamDnaProfile {
