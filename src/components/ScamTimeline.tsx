@@ -18,6 +18,12 @@ import {
   FastForward,
   RotateCcw,
   Zap,
+  UserCheck,
+  CreditCard,
+  FileSpreadsheet,
+  Key,
+  AlertOctagon,
+  UserX,
 } from 'lucide-react';
 import { AttackChainStep, RawAiAnalysis, TimelineEvent } from '../types/analysis';
 import { buildScamTimeline } from '../lib/timeline/timeline-generator';
@@ -158,46 +164,127 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
     return null;
   }
 
-  // Get color accents by stage / severity
+  // Visual icons and semantic metadata for each attack stage
+  const getStageMeta = (stage: TimelineEvent['stage'], customClass = 'w-4 h-4') => {
+    switch (stage) {
+      case 'trust':
+        return {
+          label: 'TRUST',
+          name: 'Trust Establishment',
+          icon: <UserCheck className={customClass} />,
+          color: 'text-emerald-400',
+          bg: 'bg-emerald-950/20',
+          bgColor: 'bg-emerald-950/20',
+          border: 'border-emerald-500/40',
+          borderColor: 'border-emerald-500/40',
+          badgeBg: 'bg-emerald-950/60 border-emerald-700/50 text-emerald-300',
+          dot: 'bg-emerald-400',
+          ring: 'ring-emerald-500/30',
+        };
+      case 'urgency':
+        return {
+          label: 'URGENCY',
+          name: 'Manufactured Urgency',
+          icon: <Clock className={customClass} />,
+          color: 'text-amber-400',
+          bg: 'bg-amber-950/20',
+          bgColor: 'bg-amber-950/20',
+          border: 'border-amber-500/40',
+          borderColor: 'border-amber-500/40',
+          badgeBg: 'bg-amber-950/60 border-amber-700/50 text-amber-300',
+          dot: 'bg-amber-400',
+          ring: 'ring-amber-500/30',
+        };
+      case 'financial':
+        return {
+          label: 'MONEY',
+          name: 'Financial Extraction',
+          icon: <CreditCard className={customClass} />,
+          color: 'text-rose-400',
+          bg: 'bg-rose-950/20',
+          bgColor: 'bg-rose-950/20',
+          border: 'border-rose-500/40',
+          borderColor: 'border-rose-500/40',
+          badgeBg: 'bg-rose-950/60 border-rose-700/50 text-rose-300',
+          dot: 'bg-rose-400',
+          ring: 'ring-rose-500/30',
+        };
+      case 'data':
+        return {
+          label: 'DATA',
+          name: 'PII Exfiltration',
+          icon: <FileSpreadsheet className={customClass} />,
+          color: 'text-purple-400',
+          bg: 'bg-purple-950/20',
+          bgColor: 'bg-purple-950/20',
+          border: 'border-purple-500/40',
+          borderColor: 'border-purple-500/40',
+          badgeBg: 'bg-purple-950/60 border-purple-700/50 text-purple-300',
+          dot: 'bg-purple-400',
+          ring: 'ring-purple-500/30',
+        };
+      case 'credential':
+        return {
+          label: 'CREDENTIAL',
+          name: 'Credential Theft',
+          icon: <Key className={customClass} />,
+          color: 'text-violet-400',
+          bg: 'bg-violet-950/20',
+          bgColor: 'bg-violet-950/20',
+          border: 'border-violet-500/40',
+          borderColor: 'border-violet-500/40',
+          badgeBg: 'bg-violet-950/60 border-violet-700/50 text-violet-300',
+          dot: 'bg-violet-400',
+          ring: 'ring-violet-500/30',
+        };
+      case 'extortion':
+        return {
+          label: 'EXTORTION',
+          name: 'Threat Escalation',
+          icon: <AlertOctagon className={customClass} />,
+          color: 'text-red-400',
+          bg: 'bg-red-950/20',
+          bgColor: 'bg-red-950/20',
+          border: 'border-red-500/40',
+          borderColor: 'border-red-500/40',
+          badgeBg: 'bg-red-950/60 border-red-700/50 text-red-300',
+          dot: 'bg-red-400',
+          ring: 'ring-red-500/30',
+        };
+      case 'isolation':
+        return {
+          label: 'ISOLATION',
+          name: 'Victim Isolation',
+          icon: <ShieldAlert className={customClass} />,
+          color: 'text-orange-400',
+          bg: 'bg-orange-950/20',
+          bgColor: 'bg-orange-950/20',
+          border: 'border-orange-500/40',
+          borderColor: 'border-orange-500/40',
+          badgeBg: 'bg-orange-950/60 border-orange-700/50 text-orange-300',
+          dot: 'bg-orange-400',
+          ring: 'ring-orange-500/30',
+        };
+      case 'other':
+      default:
+        return {
+          label: 'CUTOFF',
+          name: 'Resale & Ghosting',
+          icon: <UserX className={customClass} />,
+          color: 'text-slate-400',
+          bg: 'bg-slate-900/60',
+          bgColor: 'bg-slate-900/60',
+          border: 'border-slate-700/60',
+          borderColor: 'border-slate-700/60',
+          badgeBg: 'bg-slate-900 border-slate-700 text-slate-300',
+          dot: 'bg-slate-400',
+          ring: 'ring-slate-600/30',
+        };
+    }
+  };
+
   const getStageAccent = (ev: TimelineEvent) => {
-    if (ev.stage === 'financial' || ev.stage === 'extortion') {
-      return {
-        border: 'border-rose-500/40',
-        bg: 'bg-rose-950/20',
-        text: 'text-rose-400',
-        dot: 'bg-rose-500',
-        ring: 'ring-rose-500/30',
-        badgeBg: 'bg-rose-950/50 border-rose-500/30 text-rose-300',
-      };
-    }
-    if (ev.stage === 'urgency') {
-      return {
-        border: 'border-amber-500/40',
-        bg: 'bg-amber-950/20',
-        text: 'text-amber-400',
-        dot: 'bg-amber-500',
-        ring: 'ring-amber-500/30',
-        badgeBg: 'bg-amber-950/50 border-amber-500/30 text-amber-300',
-      };
-    }
-    if (ev.stage === 'data' || ev.stage === 'credential') {
-      return {
-        border: 'border-purple-500/40',
-        bg: 'bg-purple-950/20',
-        text: 'text-purple-400',
-        dot: 'bg-purple-500',
-        ring: 'ring-purple-500/30',
-        badgeBg: 'bg-purple-950/50 border-purple-500/30 text-purple-300',
-      };
-    }
-    return {
-      border: 'border-cyan-500/40',
-      bg: 'bg-cyan-950/20',
-      text: 'text-cyan-400',
-      dot: 'bg-cyan-500',
-      ring: 'ring-cyan-500/30',
-      badgeBg: 'bg-cyan-950/50 border-cyan-500/30 text-cyan-300',
-    };
+    return getStageMeta(ev.stage);
   };
 
   const activeAccent = getStageAccent(activeEvent);
@@ -437,7 +524,7 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         </div>
                       )}
 
-                      {/* Node Button */}
+                      {/* Node Button with Visual Stage Icon */}
                       <button
                         type="button"
                         onClick={() => {
@@ -445,21 +532,35 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                           setIsPlaying(false);
                           setIsPreventionTipsExpanded(true);
                         }}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer relative z-10 ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer relative z-10 ${
                           isSelected
-                            ? `bg-slate-950 border-2 ${accent.border} ring-4 ${accent.ring} scale-110 shadow-lg`
-                            : 'bg-slate-900 border border-slate-700 hover:border-slate-500 hover:scale-105'
+                            ? `bg-slate-950 border-2 ${accent.borderColor} ring-4 ${accent.ring} scale-110 shadow-lg shadow-cyan-950/50`
+                            : 'bg-slate-900 border border-slate-700/80 hover:border-slate-500 hover:scale-105'
                         }`}
-                        title={`Click to view ${ev.timeLabel} (${ev.title}) prevention tips`}
+                        title={`Click to view ${ev.timeLabel} · ${accent.label} (${ev.title}) prevention tips`}
                       >
                         <span
-                          className={`w-2.5 h-2.5 rounded-full ${
-                            ev.isObserved ? accent.dot : 'bg-slate-500'
-                          } ${isSelected ? 'animate-pulse' : ''}`}
-                        />
+                          className={`transition-colors ${
+                            isSelected
+                              ? accent.color
+                              : ev.isObserved
+                              ? `${accent.color} opacity-90`
+                              : 'text-slate-400 group-hover:text-slate-200'
+                          }`}
+                        >
+                          {accent.icon}
+                        </span>
+
+                        {/* Observed Indicator Dot on Top-Right */}
+                        {ev.isObserved && (
+                          <span
+                            className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-sm"
+                            title="Directly Observed in Uploaded Offer"
+                          />
+                        )}
                       </button>
 
-                      {/* Time Marker Label */}
+                      {/* Time Marker & Stage Label */}
                       <button
                         type="button"
                         onClick={() => {
@@ -467,19 +568,28 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                           setIsPlaying(false);
                           setIsPreventionTipsExpanded(true);
                         }}
-                        className="mt-2 text-center cursor-pointer group-hover:opacity-100 focus:outline-none"
-                        title={`Click to view ${ev.timeLabel} prevention tips`}
+                        className="mt-2 text-center cursor-pointer group-hover:opacity-100 focus:outline-none flex flex-col items-center"
+                        title={`Click to view ${ev.timeLabel} (${accent.label}) prevention tips`}
                       >
                         <span
                           className={`block text-[11px] font-mono font-bold ${
-                            isSelected ? 'text-cyan-300' : 'text-slate-400 group-hover:text-slate-200'
+                            isSelected ? 'text-cyan-300' : 'text-slate-300 group-hover:text-white'
                           }`}
                         >
                           {ev.timeLabel}
                         </span>
                         <span
-                          className={`block text-[10px] max-w-[80px] truncate leading-tight mt-0.5 ${
-                            isSelected ? 'text-slate-200 font-semibold' : 'text-slate-500 group-hover:text-slate-400'
+                          className={`inline-block text-[9px] font-mono font-bold tracking-wider px-1 py-0.2 rounded uppercase mt-0.5 ${
+                            isSelected
+                              ? `${accent.color} bg-slate-950 border ${accent.borderColor}`
+                              : 'text-slate-400'
+                          }`}
+                        >
+                          {accent.label}
+                        </span>
+                        <span
+                          className={`block text-[10px] max-w-[85px] truncate leading-tight mt-0.5 ${
+                            isSelected ? 'text-slate-200 font-semibold' : 'text-slate-400 group-hover:text-slate-300'
                           }`}
                         >
                           {ev.title}
@@ -507,29 +617,39 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
             >
               {/* Card Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-800/80">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono font-bold tracking-wider text-cyan-400">
-                      {activeEvent.timeframe}
-                    </span>
-                    <span className="text-slate-600">·</span>
-                    <span
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                        activeEvent.isObserved
-                          ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50'
-                          : 'bg-slate-900 text-slate-400 border-slate-700/60'
-                      }`}
-                    >
-                      {activeEvent.isObserved ? 'OBSERVED IN OFFER' : 'PROJECTED THREAT'}
-                    </span>
-                    <span className="text-slate-600">·</span>
-                    <span className="text-[10px] font-mono uppercase text-slate-400">
-                      Stage: {activeEvent.stage}
-                    </span>
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${activeAccent.borderColor} ${activeAccent.bgColor} ${activeAccent.color} shadow-lg`}
+                  >
+                    {getStageMeta(activeEvent.stage, 'w-6 h-6').icon}
                   </div>
-                  <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                    {activeEvent.title}
-                  </h4>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-xs font-mono font-bold tracking-wider text-cyan-400">
+                        {activeEvent.timeframe}
+                      </span>
+                      <span className="text-slate-600">·</span>
+                      <span
+                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border flex items-center gap-1.5 ${activeAccent.badgeBg}`}
+                      >
+                        {getStageMeta(activeEvent.stage, 'w-3 h-3').icon}
+                        <span>{activeAccent.label} · {activeAccent.name}</span>
+                      </span>
+                      <span className="text-slate-600">·</span>
+                      <span
+                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                          activeEvent.isObserved
+                            ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50'
+                            : 'bg-slate-900 text-slate-400 border-slate-700/60'
+                        }`}
+                      >
+                        {activeEvent.isObserved ? 'OBSERVED IN OFFER' : 'PROJECTED THREAT'}
+                      </span>
+                    </div>
+                    <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                      {activeEvent.title}
+                    </h4>
+                  </div>
                 </div>
 
                 {/* Action buttons: Toggle Prevention Tips & Jump to 'You Are Here' */}
@@ -651,9 +771,13 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         <ShieldCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-bold text-emerald-300">
                             Prevention Tips: {activeEvent.title}
+                          </span>
+                          <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${activeAccent.badgeBg}`}>
+                            {getStageMeta(activeEvent.stage, 'w-3 h-3').icon}
+                            <span>{activeAccent.label}</span>
                           </span>
                           <span className="text-[10px] font-mono text-emerald-400 px-1.5 py-0.5 rounded bg-emerald-900/50 border border-emerald-700/40">
                             {activeEvent.preventionTips?.length || 4} Defensive Steps
@@ -832,15 +956,27 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         : 'border-slate-800 bg-slate-950/60 hover:border-slate-700'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-cyan-400">
-                          {ev.timeLabel}
-                        </span>
-                        <span className="text-slate-600">·</span>
-                        <span className="text-[11px] font-mono text-slate-400">
-                          {ev.timeframe}
-                        </span>
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center border ${accent.borderColor} ${accent.bgColor} ${accent.color} shadow-sm shrink-0`}
+                        >
+                          {accent.icon}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-mono font-bold text-cyan-400">
+                              {ev.timeLabel}
+                            </span>
+                            <span className="text-slate-600">·</span>
+                            <span className={`text-[10px] font-mono font-bold uppercase ${accent.color}`}>
+                              {accent.label}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-400 block -mt-0.5">
+                            {ev.timeframe}
+                          </span>
+                        </div>
                       </div>
                       <span
                         className={`text-[10px] font-mono px-2 py-0.5 rounded border ${

@@ -401,6 +401,7 @@ SCAMTRACE enhances the attack chain with an interactive **Scam Timeline** that c
 - **Tactical What-If Branching**: Simulates consequences if the victim complies versus intervening with protective countermeasures.
 - **Kill-Chain Break Window**: Clear operational guidance on how to break the attack chain at each specific point before irreversible losses occur.
 - **Phase-Specific Prevention Tips**: Click any stage node or matrix card to expand actionable, concrete defense steps tailored specifically for that exact phase of the attack chain, with one-click export for police or personal records.
+- **Visual Stage Archetype Icons**: Interactive timeline nodes and milestone inspector cards display dedicated attack vector icons (UserCheck for Trust, Clock for Urgency, CreditCard for Financial Extraction, FileSpreadsheet for PII/Data Harvesting, Key for Credential Theft, AlertOctagon for Extortion, and UserX for Post-Exploitation Cutoff) to make the social engineering progression immediately intuitive.
 
 ### 7. Google-Powered Verification
 
