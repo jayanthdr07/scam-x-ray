@@ -1,4 +1,4 @@
-# SCAMTRACE
+## SCAMTRACE
 
 ### AI-Powered Job Offer Investigation and Protection Platform
 
