@@ -12,7 +12,7 @@ It analyzes the submitted content, extracts suspicious signals, calculates a tra
 
 ---
 
-## Table of Contents
+## *Table of Contents*
 
 - [Problem](#problem)
 - [Our Solution](#our-solution)
