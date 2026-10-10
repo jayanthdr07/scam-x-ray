@@ -1590,3 +1590,7 @@ DETECT → VERIFY → TRACE → EXPLAIN → CHALLENGE → PROTECT
 SCAMTRACE does not just detect the scam.
 
 **It traces it.**
+---
+
+## Author
+#*Jayanth*
