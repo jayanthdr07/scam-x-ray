@@ -61,6 +61,9 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
   const [matrixExpandedTips, setMatrixExpandedTips] = useState<Record<string, boolean>>({});
   const [copiedTipsStageId, setCopiedTipsStageId] = useState<string | null>(null);
 
+  // Animation sequence reset trigger
+  const [animationKey, setAnimationKey] = useState<number>(0);
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filtered list of events
@@ -110,6 +113,7 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
   const handleResetPlayback = () => {
     setIsPlaying(false);
     setSelectedIndex(0);
+    setAnimationKey((prev) => prev + 1);
   };
 
   const handleJumpToCurrent = () => {
@@ -513,7 +517,11 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                   const accent = getStageAccent(ev);
 
                   return (
-                    <div key={ev.id} className="flex flex-col items-center group relative">
+                    <div
+                      key={`${animationKey}-${filterMode}-${ev.id}`}
+                      className="flex flex-col items-center group relative animate-stage-cascade"
+                      style={{ animationDelay: `${idx * 110}ms` }}
+                    >
                       {/* "You Are Here" Marker */}
                       {isCurrentPosition && (
                         <div className="absolute -top-7 flex flex-col items-center animate-bounce">
@@ -540,13 +548,14 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         title={`Click to view ${ev.timeLabel} · ${accent.label} (${ev.title}) prevention tips`}
                       >
                         <span
-                          className={`transition-colors ${
+                          className={`animate-icon-sequence transition-colors ${
                             isSelected
                               ? accent.color
                               : ev.isObserved
                               ? `${accent.color} opacity-90`
                               : 'text-slate-400 group-hover:text-slate-200'
                           }`}
+                          style={{ animationDelay: `${idx * 110 + 40}ms` }}
                         >
                           {accent.icon}
                         </span>
@@ -554,7 +563,8 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         {/* Observed Indicator Dot on Top-Right */}
                         {ev.isObserved && (
                           <span
-                            className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-sm"
+                            className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-sm animate-icon-sequence"
+                            style={{ animationDelay: `${idx * 110 + 70}ms` }}
                             title="Directly Observed in Uploaded Offer"
                           />
                         )}
@@ -568,7 +578,8 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                           setIsPlaying(false);
                           setIsPreventionTipsExpanded(true);
                         }}
-                        className="mt-2 text-center cursor-pointer group-hover:opacity-100 focus:outline-none flex flex-col items-center"
+                        className="mt-2 text-center cursor-pointer group-hover:opacity-100 focus:outline-none flex flex-col items-center animate-text-sequence"
+                        style={{ animationDelay: `${idx * 110 + 120}ms` }}
                         title={`Click to view ${ev.timeLabel} (${accent.label}) prevention tips`}
                       >
                         <span
@@ -599,7 +610,8 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                       {/* Intervention Cut-off Line Indicator */}
                       {isInterventionLine && (
                         <div
-                          className="absolute -bottom-5 text-[9px] font-mono text-rose-400 whitespace-nowrap"
+                          className="absolute -bottom-5 text-[9px] font-mono text-rose-400 whitespace-nowrap animate-text-sequence"
+                          style={{ animationDelay: `${idx * 110 + 160}ms` }}
                           title="Point of No Return: Cease all actions before this milestone"
                         >
                           ⚠ Critical Cut-Off
@@ -613,17 +625,19 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
 
             {/* Active Milestone Forensic Detail Card */}
             <div
-              className={`rounded-xl border ${activeAccent.border} ${activeAccent.bg} p-4 sm:p-6 transition-all duration-300 mt-2`}
+              key={`active-detail-${activeEvent.id}`}
+              className={`rounded-xl border ${activeAccent.border} ${activeAccent.bg} p-4 sm:p-6 transition-all duration-300 mt-2 animate-stage-cascade`}
             >
               {/* Card Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-800/80">
                 <div className="flex items-start sm:items-center gap-3.5">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${activeAccent.borderColor} ${activeAccent.bgColor} ${activeAccent.color} shadow-lg`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${activeAccent.borderColor} ${activeAccent.bgColor} ${activeAccent.color} shadow-lg animate-icon-sequence`}
+                    style={{ animationDelay: '40ms' }}
                   >
                     {getStageMeta(activeEvent.stage, 'w-6 h-6').icon}
                   </div>
-                  <div>
+                  <div className="animate-text-sequence" style={{ animationDelay: '90ms' }}>
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <span className="text-xs font-mono font-bold tracking-wider text-cyan-400">
                         {activeEvent.timeframe}
@@ -949,21 +963,23 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
 
                 return (
                   <div
-                    key={ev.id}
-                    className={`rounded-xl border p-4 transition-all ${
+                    key={`${animationKey}-${viewMode}-${filterMode}-${ev.id}`}
+                    className={`rounded-xl border p-4 transition-all animate-stage-cascade ${
                       isCurrentPosition
                         ? 'border-amber-500/50 bg-amber-950/10 ring-2 ring-amber-500/20'
                         : 'border-slate-800 bg-slate-950/60 hover:border-slate-700'
                     }`}
+                    style={{ animationDelay: `${idx * 110}ms` }}
                   >
                     <div className="flex items-center justify-between mb-2.5">
                       <div className="flex items-center gap-2.5">
                         <div
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center border ${accent.borderColor} ${accent.bgColor} ${accent.color} shadow-sm shrink-0`}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center border ${accent.borderColor} ${accent.bgColor} ${accent.color} shadow-sm shrink-0 animate-icon-sequence`}
+                          style={{ animationDelay: `${idx * 110 + 40}ms` }}
                         >
                           {accent.icon}
                         </div>
-                        <div>
+                        <div className="animate-text-sequence" style={{ animationDelay: `${idx * 110 + 80}ms` }}>
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-mono font-bold text-cyan-400">
                               {ev.timeLabel}
@@ -979,27 +995,42 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                         </div>
                       </div>
                       <span
-                        className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded border animate-text-sequence ${
                           ev.isObserved
                             ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
                             : 'bg-slate-900 text-slate-400 border-slate-800'
                         }`}
+                        style={{ animationDelay: `${idx * 110 + 90}ms` }}
                       >
                         {ev.isObserved ? 'OBSERVED' : 'PROJECTED'}
                       </span>
                     </div>
 
-                    <h4 className="text-sm font-semibold text-white mb-2">{ev.title}</h4>
+                    <h4
+                      className="text-sm font-semibold text-white mb-2 animate-text-sequence"
+                      style={{ animationDelay: `${idx * 110 + 120}ms` }}
+                    >
+                      {ev.title}
+                    </h4>
 
-                    <div className="p-2 rounded bg-slate-900/80 border border-slate-800/60 text-xs font-mono text-slate-300 italic mb-2 line-clamp-2">
+                    <div
+                      className="p-2 rounded bg-slate-900/80 border border-slate-800/60 text-xs font-mono text-slate-300 italic mb-2 line-clamp-2 animate-text-sequence"
+                      style={{ animationDelay: `${idx * 110 + 160}ms` }}
+                    >
                       "{ev.evidence}"
                     </div>
 
-                    <p className="text-xs text-slate-400 mb-2.5 line-clamp-2">
+                    <p
+                      className="text-xs text-slate-400 mb-2.5 line-clamp-2 animate-text-sequence"
+                      style={{ animationDelay: `${idx * 110 + 200}ms` }}
+                    >
                       {ev.explanation}
                     </p>
 
-                    <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+                    <div
+                      className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px] animate-text-sequence"
+                      style={{ animationDelay: `${idx * 110 + 240}ms` }}
+                    >
                       <span className="text-slate-400 font-mono">Countermeasure:</span>
                       <span className="text-cyan-300 font-medium truncate max-w-[200px]" title={ev.killChainAction}>
                         {ev.killChainAction}
@@ -1007,7 +1038,10 @@ export const ScamTimeline: React.FC<ScamTimelineProps> = ({ steps, rawAnalysis }
                     </div>
 
                     {/* Expandable Phase Prevention Tips in Matrix View */}
-                    <div className="pt-2 mt-2 border-t border-slate-800/60">
+                    <div
+                      className="pt-2 mt-2 border-t border-slate-800/60 animate-text-sequence"
+                      style={{ animationDelay: `${idx * 110 + 280}ms` }}
+                    >
                       <button
                         type="button"
                         onClick={() => toggleMatrixStageTips(ev.id)}

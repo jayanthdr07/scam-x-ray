@@ -53,3 +53,52 @@
   border-color: rgba(16, 185, 129, 0.4);
   box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.2);
 }
+
+/* Subtle Cascading Progression Animations for ScamTimeline */
+@keyframes stageCascadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconSequenceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes textSequenceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-stage-cascade {
+  animation: stageCascadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-icon-sequence {
+  animation: iconSequenceIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-text-sequence {
+  animation: textSequenceIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
