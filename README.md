@@ -1593,4 +1593,4 @@ SCAMTRACE does not just detect the scam.
 ---
 
 ## Author
-#*Jayanth*
+#*Jayanth D R*
