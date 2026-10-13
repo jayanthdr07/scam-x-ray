@@ -1,6 +1,7 @@
 import React from 'react';
-import { ThreatIndexResult } from '../types/analysis';
+import { ThreatIndexResult, RiskSignal, ScamDnaProfile, AttackChainStep } from '../types/analysis';
 import { Badge } from './ui/Badge';
+import { VictimImpactCounter } from './VictimImpactCounter';
 
 interface ThreatIndexProps {
   threatIndex: ThreatIndexResult;
@@ -9,6 +10,9 @@ interface ThreatIndexProps {
   claimedRole: string | null;
   location: string | null;
   salary: string | null;
+  riskSignals?: RiskSignal[];
+  scamDna?: ScamDnaProfile;
+  attackChain?: AttackChainStep[];
 }
 
 export const ThreatIndex: React.FC<ThreatIndexProps> = ({
@@ -16,6 +20,9 @@ export const ThreatIndex: React.FC<ThreatIndexProps> = ({
   summary,
   claimedCompany,
   claimedRole,
+  riskSignals,
+  scamDna,
+  attackChain,
 }) => {
   const { score, band, confidence, evidenceQuality, factorContributions } = threatIndex;
 
@@ -183,6 +190,17 @@ export const ThreatIndex: React.FC<ThreatIndexProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Victim Impact & Social Buzz Counter */}
+        <VictimImpactCounter
+          score={score}
+          band={band}
+          claimedCompany={claimedCompany}
+          claimedRole={claimedRole}
+          riskSignals={riskSignals}
+          scamDna={scamDna}
+          attackChain={attackChain}
+        />
       </div>
     </div>
   );

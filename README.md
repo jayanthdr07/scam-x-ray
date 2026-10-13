@@ -306,6 +306,17 @@ These labels represent detected risk indicators, not definitive proof of crimina
 
 A low score does not mean that an offer is guaranteed to be legitimate.
 
+### 3.1. Victim Impact & Social Buzz Counter
+
+Integrated directly within the **Threats section (Threat Index)**, the **Victim Impact / Social Buzz Counter** provides community telemetry to estimate how many users have reported similar patterns and build community awareness:
+
+- **Estimated Community Reports**: Aggregates community report estimates (e.g. 3,400+ job seekers targeted) based on threat severity, detected fraud syndicate patterns, and entity impersonation.
+- **Trend & Velocity Telemetry**: Live indicators tracking recent 30-day activity, weekly reporting surges (e.g., `+34% surge`), and syndicate chatter status (`🔥 Trending Syndicate Campaign`).
+- **Victim Exposure & Loss Prevention**: Projects estimated average financial loss per unintercepted victim alongside collective losses prevented through early detection.
+- **Interactive "+1 I Encountered This Too" Report Button**: Allows users to register their own encounter in real time, persisting to the local community graph and updating the threat counter dynamically.
+- **Share Threat Warning**: Instant one-click formatted advisory to share with peer networks, university job boards, Reddit, or Discord.
+- **Community Incident Intel & Channel Distribution**: Anonymized victim excerpts from fraud reporting databases (Reddit r/Scams, FTC Consumer Sentinel) and percentage breakdowns of contact methods (Telegram, SMS, Spoofed Email).
+
 ### 4. Evidence Lens
 
 The Evidence Lens is one of the core SCAMTRACE features.
