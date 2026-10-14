@@ -313,7 +313,8 @@ Integrated directly within the **Threats section (Threat Index)**, the **Victim 
 - **Estimated Community Reports**: Aggregates community report estimates (e.g. 3,400+ job seekers targeted) based on threat severity, detected fraud syndicate patterns, and entity impersonation.
 - **Trend & Velocity Telemetry**: Live indicators tracking recent 30-day activity, weekly reporting surges (e.g., `+34% surge`), and syndicate chatter status (`🔥 Trending Syndicate Campaign`).
 - **Victim Exposure & Loss Prevention**: Projects estimated average financial loss per unintercepted victim alongside collective losses prevented through early detection.
-- **Interactive "+1 I Encountered This Too" Report Button**: Allows users to register their own encounter in real time, persisting to the local community graph and updating the threat counter dynamically.
+- **D3 Scam Frequency Velocity Chart (Past 30 Days)**: Interactive D3 line chart visualizing 30-day scam propagation velocity, surge peaks, and cumulative volume. Features glowing SVG path rendering, hairline crosshairs, daily report inspection tooltips, and interactive metric toggling between daily frequency and cumulative growth curves.
+- **Interactive "+1 I Encountered This Too" Report Button**: Allows users to register their own encounter in real time, persisting to the local community graph and dynamically updating both the counter and the D3 velocity curve.
 - **Share Threat Warning**: Instant one-click formatted advisory to share with peer networks, university job boards, Reddit, or Discord.
 - **Community Incident Intel & Channel Distribution**: Anonymized victim excerpts from fraud reporting databases (Reddit r/Scams, FTC Consumer Sentinel) and percentage breakdowns of contact methods (Telegram, SMS, Spoofed Email).
 

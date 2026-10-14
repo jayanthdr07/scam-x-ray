@@ -16,6 +16,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { RiskBand, RiskSignal, ScamDnaProfile, AttackChainStep } from '../types/analysis';
+import { ScamVelocityChart } from './ScamVelocityChart';
 
 interface VictimImpactCounterProps {
   score: number;
@@ -334,8 +335,19 @@ export const VictimImpactCounter: React.FC<VictimImpactCounterProps> = ({
         </div>
       </div>
 
+      {/* D3 Scam Frequency Velocity Chart (Past 30 Days) */}
+      <ScamVelocityChart
+        score={score}
+        band={band}
+        patternSeed={patternSeed}
+        baseRecent30d={stats.baseRecent30d}
+        reportOffset={reportOffset}
+        claimedCompany={claimedCompany}
+        surge={stats.surge}
+      />
+
       {/* Interactive Action Bar: Community Report + Copy Warning + Toggle Buzz Details */}
-      <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="mt-4 p-3 rounded-xl bg-slate-950/50 border border-slate-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {/* 1. "I Encountered This Too" Interactive Counter Increment */}
           <button
