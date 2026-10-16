@@ -1,7 +1,10 @@
 import express, { Request, Response } from 'express';
+import http from 'http';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
+import { WebSocketServer, WebSocket } from 'ws';
+import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { analyzeJobOffer, verifyCompanyClaims, runRedTeamReview } from './src/lib/ai/gemini';
 import { calculateThreatIndex } from './src/lib/scoring/risk-engine';
 import { redactSensitiveData } from './src/lib/security/redaction';
@@ -155,8 +158,127 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[SCAMTRACE Engine] Server running on http://0.0.0.0:${PORT}`);
+  const server = http.createServer(app);
+
+  // WebSocket Server for Gemini 3.8 Live API Voice Interactions
+  const wss = new WebSocketServer({ server, path: '/live' });
+
+  wss.on('connection', async (clientWs: WebSocket) => {
+    console.log('[SCAMTRACE Live] Client connected to WebSocket /live');
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      clientWs.send(JSON.stringify({ error: 'GEMINI_API_KEY is not configured on the server.' }));
+      clientWs.close();
+      return;
+    }
+
+    let session: any = null;
+    let isClosed = false;
+
+    try {
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          },
+        },
+      });
+
+      session = await ai.live.connect({
+        model: 'gemini-3.8-live',
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
+          },
+          systemInstruction: `You are the SCAMTRACE Live Forensic Voice Investigator.
+You are in a live, real-time voice call with a job seeker or victim analyzing suspicious job offers, interview demands, check/crypto payment scams, telegram/whatsapp recruiter pitches, and fake company domains.
+Speak naturally, clearly, and concisely (1-3 sentences per turn). Give immediate, actionable red-flag analysis.
+If they mention paying for equipment, cashing a check, or moving to Telegram, immediately alert them to the danger.`,
+        },
+        callbacks: {
+          onmessage: (message: LiveServerMessage) => {
+            if (isClosed || clientWs.readyState !== WebSocket.OPEN) return;
+            const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+            const text = message.serverContent?.modelTurn?.parts?.find((p: any) => p.text)?.text;
+            if (audio) {
+              clientWs.send(JSON.stringify({ audio, text }));
+            }
+            if (message.serverContent?.interrupted) {
+              clientWs.send(JSON.stringify({ interrupted: true }));
+            }
+            if (message.serverContent?.turnComplete) {
+              clientWs.send(JSON.stringify({ turnComplete: true }));
+            }
+          },
+          onclose: () => {
+            if (!isClosed && clientWs.readyState === WebSocket.OPEN) {
+              clientWs.send(JSON.stringify({ status: 'live_closed' }));
+            }
+          },
+          onerror: (err: any) => {
+            console.error('[SCAMTRACE Live] Gemini Live error:', err);
+            if (!isClosed && clientWs.readyState === WebSocket.OPEN) {
+              clientWs.send(JSON.stringify({ error: err?.message || 'Live session error' }));
+            }
+          },
+        },
+      });
+
+      clientWs.send(JSON.stringify({
+        status: 'connected',
+        model: 'gemini-3.8-live',
+        message: 'Live Voice Forensic Investigator active. Speak into your microphone.',
+      }));
+
+      clientWs.on('message', (data: Buffer | string) => {
+        try {
+          const payload = JSON.parse(data.toString());
+          if (payload.audio && session) {
+            session.sendRealtimeInput({
+              audio: { data: payload.audio, mimeType: 'audio/pcm;rate=16000' },
+            });
+          } else if (payload.text && session) {
+            session.sendClientContent({
+              turns: [
+                {
+                  role: 'user',
+                  parts: [{ text: payload.text }],
+                },
+              ],
+              turnComplete: true,
+            });
+          }
+        } catch (err) {
+          console.error('[SCAMTRACE Live] Error parsing client message:', err);
+        }
+      });
+
+      clientWs.on('close', () => {
+        isClosed = true;
+        if (session && typeof session.close === 'function') {
+          try {
+            session.close();
+          } catch (e) {}
+        }
+      });
+
+      clientWs.on('error', (err) => {
+        console.error('[SCAMTRACE Live] Client socket error:', err);
+      });
+    } catch (err: any) {
+      console.error('[SCAMTRACE Live] Failed to connect to Gemini Live API:', err);
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.send(JSON.stringify({ error: err?.message || 'Failed to start Live Voice session' }));
+        clientWs.close();
+      }
+    }
+  });
+
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[SCAMTRACE Engine] Server running on http://0.0.0.0:${PORT} with WebSocket /live`);
   });
 }
 

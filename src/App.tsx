@@ -15,10 +15,12 @@ import { RedTeamPanel } from './components/RedTeamPanel';
 import { RiskSimulator } from './components/RiskSimulator';
 import { ProtectionPlan } from './components/ProtectionPlan';
 import { EmailHeaderModal } from './components/EmailHeaderModal';
+import { CyberThreat3DScene } from './components/CyberThreat3DScene';
+import { LiveVoiceInvestigator } from './components/LiveVoiceInvestigator';
 import { Footer } from './components/Footer';
 import { AccordionItem } from './components/ui/Accordion';
 import { InvestigationSession, VerificationResult, RedTeamReview } from './types/analysis';
-import { AlertCircle, RotateCcw, Share2, Check } from 'lucide-react';
+import { AlertCircle, RotateCcw, Share2, Check, Radio, Box } from 'lucide-react';
 
 export default function App() {
   const [session, setSession] = useState<InvestigationSession | null>(null);
@@ -32,6 +34,7 @@ export default function App() {
   const [externalInputText, setExternalInputText] = useState<string | undefined>(undefined);
   const [interceptedAction, setInterceptedAction] = useState<InterceptedAction | null>(null);
   const [selectedEvidenceSignalId, setSelectedEvidenceSignalId] = useState<string | undefined>(undefined);
+  const [liveVoiceOpen, setLiveVoiceOpen] = useState(false);
 
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -267,6 +270,8 @@ Advisory Report by SCAMTRACE (https://ai.studio/build)`;
         onNavigateToLibrary={() => document.getElementById('pattern-library-section')?.scrollIntoView({ behavior: 'smooth' })}
         onNavigateToScanner={() => document.getElementById('offer-scanner-section')?.scrollIntoView({ behavior: 'smooth' })}
         onNavigateToHowItWorks={() => document.getElementById('how-it-works-section')?.scrollIntoView({ behavior: 'smooth' })}
+        onNavigateTo3DCore={() => document.getElementById('cyber-threat-3d-section')?.scrollIntoView({ behavior: 'smooth' })}
+        onOpenLiveVoice={() => setLiveVoiceOpen(true)}
         onTryDemo={() => {
           setExternalInputText(`Subject: Formal Appointment & Equipment Disbursal - Senior Operations Clerk
 Company: Apex Horizon Logistics Ltd.
@@ -423,6 +428,30 @@ Apex Horizon Logistics`);
           </div>
         )}
 
+        {/* 3D Cyber Threat Sentinel Sandbox Section */}
+        <section id="cyber-threat-3d-section" className="w-full max-w-4xl mx-auto px-4 py-8">
+          <div className="mb-4">
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono uppercase tracking-wider mb-1">
+              <Box className="w-4 h-4 text-cyan-400" />
+              <span>3D Procedural Forensic Engine (Three.js)</span>
+            </div>
+            <h3 className="text-xl font-bold text-white tracking-tight">
+              {session
+                ? `3D Attack Vector Anatomy: ${session.analysis.claimedCompany || 'Active Threat'}`
+                : '3D Threat Sentinel & Cyber Defense Core'}
+            </h3>
+            <p className="text-xs text-slate-400">
+              Interactive Three.js studio PBR visualization of syndicate recruitment threat vectors. Drag to orbit, zoom, inspect exploded anatomy, and simulate real-time threat alert states.
+            </p>
+          </div>
+
+          <CyberThreat3DScene
+            threatScore={session ? session.threatIndex.score : undefined}
+            riskBand={session ? session.threatIndex.band : undefined}
+            companyName={session?.analysis?.claimedCompany ?? undefined}
+          />
+        </section>
+
         {/* 10. LEARN: Pattern Library (Always accessible at bottom) */}
         <ScamPatternLibrary
           onLoadExampleInScanner={(sampleText) => {
@@ -431,6 +460,31 @@ Apex Horizon Logistics`);
           }}
         />
       </main>
+
+      {/* Floating Live Voice AI Action Button */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          type="button"
+          onClick={() => setLiveVoiceOpen(true)}
+          className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium text-xs shadow-xl shadow-cyan-950/60 border border-cyan-400/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          title="Talk to SCAMTRACE Live Voice Investigator (Gemini 3.8 Live API)"
+        >
+          <div className="relative flex items-center justify-center">
+            <Radio className="w-4 h-4 text-white animate-pulse" />
+          </div>
+          <span className="font-semibold tracking-wide">Live Voice AI</span>
+          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-950/60 border border-cyan-400/30 text-cyan-200">
+            GEMINI 3.8 LIVE
+          </span>
+        </button>
+      </div>
+
+      {/* Live Voice Investigator Modal */}
+      <LiveVoiceInvestigator
+        isOpen={liveVoiceOpen}
+        onClose={() => setLiveVoiceOpen(false)}
+        activeSession={session}
+      />
 
       {/* Real-time Smart Alert */}
       <SmartAlert

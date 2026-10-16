@@ -318,6 +318,24 @@ Integrated directly within the **Threats section (Threat Index)**, the **Victim 
 - **Share Threat Warning**: Instant one-click formatted advisory to share with peer networks, university job boards, Reddit, or Discord.
 - **Community Incident Intel & Channel Distribution**: Anonymized victim excerpts from fraud reporting databases (Reddit r/Scams, FTC Consumer Sentinel) and percentage breakdowns of contact methods (Telegram, SMS, Spoofed Email).
 
+### 3.2. Three.js 3D Cyber Threat Sentinel & Syndicate Anatomy
+
+Built with **Three.js** following procedural craft and studio PBR lighting guidelines:
+- **Composite 8-Part Procedural 3D Model (`THREE.Group`)**: Assembles an intricate cyber defense core featuring outer titanium aegis shield plates, precision counter-rotating dual-axis gimbal rings, a transmissive crystalline optical glass core (`MeshPhysicalMaterial`), inner neural threat wireframe matrix, 4 dynamic copper/diode interceptor nodes, grounded pedestal base with contact shadow, and orbital telemetry packets.
+- **Exploded Anatomy Slider**: Smoothly expands the model from 0% to 100% layer separation via frame-rate independent exponential damping (`THREE.MathUtils.damp`), allowing users to inspect internal interceptor mechanisms.
+- **Dynamic Threat Alert Synchronization**: Synchronizes in real time with the active scan's deterministic Threat Index (Safe Shield cyan/emerald, Phishing Alert amber, and Syndicate Breach crimson alert states with accelerated kinematics).
+- **Studio PBR Pipeline**: Incorporates zero-dependency procedural reflection mapping via `RoomEnvironment` and `PMREMGenerator`, balanced 3-point studio lighting rig with PCF soft shadows, and procedural coordinate grid textures with maximum anisotropy.
+- **Collapsible Ergonomic Bottom Dock**: Features a unified horizontal glassmorphic dock pinned to bottom-center with zero viewport occlusion, camera preset pills (Orbit, Elevation, Top Grid, Core Zoom), finish swatches (Titanium, Obsidian, Holographic, Wireframe), and a cinema mode drawer toggle.
+
+### 3.3. Gemini 3.8 Live API Real-Time Voice Forensic Investigator
+
+Integrated direct voice intelligence for immediate scam interrogation and triage:
+- **Bidirectional Live Audio Streaming**: Connects the browser to `gemini-3.8-live` over a high-performance WebSocket proxy (`/live`).
+- **16kHz Mic Ingestion & 24kHz Response Playback**: Captures microphone audio using Web Audio API (`AudioContext`), encodes Float32 into Int16 linear PCM Base64, and dynamically streams gapless 24kHz audio buffers back to the user.
+- **Instant Triage & Interruption Support**: Handles user barging/interruption instantly, clearing audio queues and maintaining synchronized dialogue.
+- **Active Scan Context Injection**: Allows one-tap injection of active job scam findings (claimed company, threat score, primary red flags) directly into the voice model's memory for personalized tactical advice.
+- **Live Waveform & Audio Spectrum Visualizer**: Dynamic visual orb and spectrum telemetry reflecting user microphone input and AI voice speech states.
+
 ### 4. Evidence Lens
 
 The Evidence Lens is one of the core SCAMTRACE features.

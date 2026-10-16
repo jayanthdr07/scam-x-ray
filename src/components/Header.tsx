@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Search, BookOpen, Info, Play, Menu, X } from 'lucide-react';
+import { Shield, Search, BookOpen, Info, Play, Menu, X, Mic, Box } from 'lucide-react';
 import { Button } from './ui/Button';
 
 interface HeaderProps {
@@ -7,6 +7,8 @@ interface HeaderProps {
   onNavigateToLibrary?: () => void;
   onNavigateToScanner?: () => void;
   onNavigateToHowItWorks?: () => void;
+  onNavigateTo3DCore?: () => void;
+  onOpenLiveVoice?: () => void;
   onTryDemo?: () => void;
 }
 
@@ -14,6 +16,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToLibrary,
   onNavigateToScanner,
   onNavigateToHowItWorks,
+  onNavigateTo3DCore,
+  onOpenLiveVoice,
   onTryDemo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -59,6 +63,15 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             type="button"
+            onClick={onNavigateTo3DCore}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-900/80 transition-colors"
+          >
+            <Box className="w-4 h-4 text-slate-400" />
+            <span>3D Sentinel</span>
+          </button>
+
+          <button
+            type="button"
             onClick={onNavigateToHowItWorks}
             className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-900/80 transition-colors"
           >
@@ -67,8 +80,20 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Desktop Right CTA: Try Demo */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Desktop Right CTAs: Live Voice AI + Try Demo */}
+        <div className="hidden md:flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={onOpenLiveVoice}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-950/80 to-blue-950/80 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 hover:text-white text-xs font-medium shadow-sm transition"
+          >
+            <Mic className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+            <span>Live Voice AI</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-900/80 text-cyan-200">
+              LIVE
+            </span>
+          </button>
+
           <Button
             size="sm"
             variant="secondary"
@@ -125,6 +150,30 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <BookOpen className="w-4 h-4 text-cyan-400" />
             <span>Patterns</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigateTo3DCore?.();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-slate-900"
+          >
+            <Box className="w-4 h-4 text-cyan-400" />
+            <span>3D Sentinel Core</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenLiveVoice?.();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-cyan-300 hover:bg-slate-900 font-medium"
+          >
+            <Mic className="w-4 h-4 text-cyan-400" />
+            <span>Live Voice AI (Gemini 3.8)</span>
           </button>
 
           <button
